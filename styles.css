@@ -2,6 +2,13 @@ body {
     margin-left: 30px;
     margin-top: 20px;
     margin-bottom: 30px;
+	background-image: url("back-4k.jpeg");
+  
+	background-position: center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	
+	background-size: cover;
     
 }
 
