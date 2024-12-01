@@ -7,6 +7,8 @@
     <link rel="icon" type="image/x-icon" href="Ashwin-icon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
@@ -14,9 +16,9 @@
             <h1>Ashwin Sheoran</h1>
             <p>Fullstack Developer | Data Analyst</p>
             <p>
-                <a href="https://www.linkedin.com/in/ashwin-sheoran" target="_blank">LinkedIn</a> | 
-                <a href="https://github.com/AshwinSheoran02" target="_blank">GitHub</a> | 
-                <a href="https://www.youtube.com/@ConsoleCatalysts" target="_blank">YouTube</a>
+                <a href="https://www.linkedin.com/in/ashwin-sheoran" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a> | 
+                <a href="https://github.com/AshwinSheoran02" target="_blank"> <i class="fab fa-github"></i> GitHub</a> | 
+                <a href="https://www.youtube.com/@ConsoleCatalysts" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
             </p>
         </div>
         <div id="scoreContainer" style="text-align: right;">
@@ -26,8 +28,8 @@
         </div>
     </header>
     <div class="container">
-        <section class="scroll-reveal">
-            <h2>Education</h2>
+        <section class="scroll-reveal" style="margin: 0.5rem 0;" style="margin: 1.5rem 0;">
+            <h2 style="margin-bottom: 0.2rem;" style="margin-bottom: 0.5rem;">Education</h2>
             <ul>
                 <li><strong>IIIT Delhi</strong> - B.Tech in Computer Science and Applied Mathematics (2020 - 2024) | CGPA: 7.45/10</li>
                 <li><strong>Apeejay School, Pitampura</strong> - CBSE Class XII (2020) | 94.6%</li>
@@ -79,11 +81,18 @@
             <ul class="skills-list">
                 <li>Microservices Architecture</li>
                 <li>React Mini Apps</li>
-                <li>Game Development</li>
+                <li><i class="fas fa-gamepad"></i> Game Development</li>
                 <li>Data Structures & Algorithms</li>
                 <li>Machine Learning</li>
-                <li>Programming: Java, Python, TypeScript, Kotlin</li>
-                <li>Platforms: AWS, Unity Engine, Unreal Engine</li>
+                <li>Platforms: <i class="fab fa-aws"></i> AWS, <i class="fas fa-gamepad"></i> Unity Engine, <i class="fas fa-project-diagram"></i> Unreal Engine</li>
+            </ul>
+        </section>
+        <section class="scroll-reveal">
+            <h2>Languages</h2>
+            <ul class="languages-list">
+                <li><i class="fab fa-java"></i> Java, <i class="fab fa-js"></i> TypeScript, <i class="fab fa-cuttlefish"></i> C#, <i class="fab fa-python"></i> Python, <i class="fab fa-php"></i> PHP, GraphQL, Scala, C++, C, SQL, R, <i class="fab fa-js"></i> JavaScript</li>
+            </ul>
+                <li>Platforms: <i class="fab fa-aws"></i> AWS, <i class="fas fa-gamepad"></i> Unity Engine, <i class="fas fa-project-diagram"></i> Unreal Engine</li>
             </ul>
         </section>
         <section class="scroll-reveal">
@@ -100,10 +109,10 @@
         <section class="scroll-reveal">
             <h2>Hobbies</h2>
             <ul class="hobbies-list">
-                <li>Cricket</li>
+                <li><i class="fas fa-cricket"></i> Cricket</li>
                 <li>Game Development</li>
-                <li>Reading</li>
-                <li>Stock Markets</li>
+                <li><i class="fas fa-book"></i> Reading</li>
+                <li><i class="fas fa-chart-line"></i> Stock Markets</li>
             </ul>
         </section>
     </div>
@@ -124,7 +133,6 @@
             }, 1000);
         });
 
-        // Scroll reveal animation
         const scrollElements = document.querySelectorAll('.scroll-reveal');
 
         function elementInView(el, dividend = 1) {
@@ -148,7 +156,6 @@
 
         handleScrollAnimation();
 
-        // Interactive game code
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let x = canvas.width / 2;
@@ -224,7 +231,6 @@ let score = 0;
                     dx = (hitPosition - 0.5) * 4;
                     dy = -dy;
                 } else {
-                    // Ball hits the bottom edge
                     resetGameCanvas();
                 }
             }
