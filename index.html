@@ -1,264 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashwin Sheoran - Portfolio</title>
-    <link rel="icon" type="image/x-icon" href="Ashwin-icon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <header>
-        <div>
-            <h1>Ashwin Sheoran</h1>
-            <p>Fullstack Developer | Data Analyst</p>
-            <p>
-                <a href="https://www.linkedin.com/in/ashwin-sheoran" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a> | 
-                <a href="https://github.com/AshwinSheoran02" target="_blank"> <i class="fab fa-github"></i> GitHub</a> | 
-                <a href="https://www.youtube.com/@ConsoleCatalysts" target="_blank"><i class="fab fa-youtube"></i> YouTube</a> |
-                <a href="https://console-catalysts.github.io/" target="_blank"><i class="fas fa-gamepad"></i> Console Catalysts</a>
-            </p>
-        </div>
-        <div id="scoreContainer" style="text-align: right;">
-            <div id="scoreDisplay" class="score-display" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">Score: 0</div>
-            <canvas id="gameCanvas" width="200" height="150"></canvas>
-            <div class="instructions" style="text-align: right;">Use the left and right arrow keys to control the paddle and prevent the ball from falling.</div>
-        </div>
-    </header>
-    <div class="container">
-        <section class="scroll-reveal" style="margin: 0.5rem 0;" style="margin: 1.5rem 0;">
-            <h2 style="margin-bottom: 0.2rem;" style="margin-bottom: 0.5rem;">Education</h2>
-            <ul>
-                <li><strong>IIIT Delhi</strong> - B.Tech in Computer Science and Applied Mathematics (2020 - 2024) | CGPA: 7.45/10</li>
-                <li><strong>Apeejay School, Pitampura</strong> - CBSE Class XII (2020) | 94.6%</li>
-                <li><strong>Apeejay School, Pitampura</strong> - CBSE Class X (2018) | 92.2%</li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Experience</h2>
-            <ul>
-                <li>
-                    <strong>National Australia Bank (2024 - Present)</strong><br>
-                    - Fullstack Developer working on Nabtrade, NAB's online share trading platform.<br>
-                    - Tools: TypeScript, React, Java, PostgreSQL, GraphQL, HTML, JMeter.
-                </li>
-                <li>
-                    <strong>Reliance Jio (2023)</strong><br>
-                    - Data Analyst Intern.<br>
-                    - Tools: Apache Spark, Hive, Scala, Hadoop, SQL, Kafka.
-                </li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Projects</h2>
-            <ul>
-                <li>
-                    <strong>ICU Shock Prediction</strong>: 
-                    Bert model predictions for ICU patients with 87% accuracy.
-                </li>
-                <li>
-                    <strong><a href="https://github.com/AshwinSheoran02/Automated-Financial-Distress-Predictor-Model" target="_blank">Financial Distress Predictor</a></strong>: 
-                    Achieved 99.6% accuracy with a hybrid ML model.
-                </li>
-                <li>
-                    <strong><a href="https://www.amazon.com/dp/B0BBW3ZPVG/ref=apps_sf_sta" target="_blank">QR-Code Scanner and Generator App</a></strong>: 
-                    Individual project using Java and Android Studio.
-                </li>
-                <li>
-                    <strong><a href="https://github.com/AshwinSheoran02/EmoSense-App" target="_blank">Mood-Based Music Recommender App</a></strong>: 
-                    Physiological data-based mood detection to recommend Spotify songs.
-                </li>
-                <li>
-                    <strong><a href="https://github.com/AshwinSheoran02/Unity-3rd-Person-Shooter-Game" target="_blank">Third-Person Shooter Game</a></strong>: 
-                    Developed a multi-level 3D game using Unity Engine.
-                </li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Skills</h2>
-            <ul class="skills-list">
-                <li>Microservices Architecture</li>
-                <li>React Mini Apps</li>
-                <li><i class="fas fa-gamepad"></i> Game Development</li>
-                <li>Data Structures & Algorithms</li>
-                <li>Machine Learning</li>
-                <li>Platforms: <i class="fab fa-aws"></i> AWS, <i class="fas fa-gamepad"></i> Unity Engine, <i class="fas fa-project-diagram"></i> Unreal Engine</li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Languages</h2>
-            <ul class="languages-list">
-                <li><i class="fab fa-java"></i> Java, <i class="fab fa-js"></i> TypeScript, <i class="fab fa-cuttlefish"></i> C#, <i class="fab fa-python"></i> Python, <i class="fab fa-php"></i> PHP, GraphQL, Scala, C++, C, SQL, R, <i class="fab fa-js"></i> JavaScript</li>
-            </ul>
-                <li>Platforms: <i class="fab fa-aws"></i> AWS, <i class="fas fa-gamepad"></i> Unity Engine, <i class="fas fa-project-diagram"></i> Unreal Engine</li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Achievements</h2>
-            <ul class="achievements-list">
-                <li>Cricket Co-ordinator of IIITD Sports council</li>
-                <li>Winner of GameJam Hackathon at IIIT-D</li>
-                <li>Finalist in DecodEV Hackathon by WUElev8</li>
-                <li>Winner of Compose Hackathon: Android app with Kotlin</li>
-                <li>1st in Sports Council Contest at Cadence Fest</li>
-                <li>Java 5-Star Certification on HackerRank</li>
-            </ul>
-        </section>
-        <section class="scroll-reveal">
-            <h2>Hobbies</h2>
-            <ul class="hobbies-list">
-                <li><i class="fas fa-cricket"></i> Cricket</li>
-                <li>Game Development</li>
-                <li><i class="fas fa-book"></i> Reading</li>
-                <li><i class="fas fa-chart-line"></i> Stock Markets</li>
-            </ul>
-        </section>
-    </div>
-    <footer>
-        <p>&copy; 2024 Ashwin Sheoran. All rights reserved.</p>
-    </footer>
-
-    <script>
-
-        const scrollElements = document.querySelectorAll('.scroll-reveal');
-
-        function elementInView(el, dividend = 1) {
-            const elementTop = el.getBoundingClientRect().top;
-            return (
-                elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
-            );
-        }
-
-        function handleScrollAnimation() {
-            scrollElements.forEach((el) => {
-                if (elementInView(el, 1.25)) {
-                    el.classList.add('visible');
-                }
-            });
-        }
-
-        window.addEventListener('scroll', () => {
-            handleScrollAnimation();
-        });
-
-        handleScrollAnimation();
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let x = canvas.width / 2;
-        let y = canvas.height - 30;
-        let dx = 1.5;
-        let dy = -1.5;
-        let ballRadius = 6;
-        let paddleHeight = 10;
-        let paddleWidth = 75;
-        let paddleX = (canvas.width - paddleWidth) / 2;
-        let rightPressed = false;
-let leftPressed = false;
-let score = 0;
-
-        document.addEventListener('keydown', keyDownHandler, false);
-        document.addEventListener('keyup', keyUpHandler, false);
-
-        function keyDownHandler(e) {
-            if (e.key === 'Right' || e.key === 'ArrowRight') {
-                rightPressed = true;
-            } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-                leftPressed = true;
-            }
-        }
-
-        function keyUpHandler(e) {
-            if (e.key === 'Right' || e.key === 'ArrowRight') {
-                rightPressed = false;
-            } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-                leftPressed = false;
-            }
-        }
-
-        function drawBall() {
-            const gradient = ctx.createRadialGradient(x, y, ballRadius / 2, x, y, ballRadius);
-            gradient.addColorStop(0, '#ff0000');
-            gradient.addColorStop(1, '#800000');
-            ctx.beginPath();
-            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawPaddle() {
-            ctx.beginPath();
-            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-            ctx.fillStyle = '#007bff';
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBall();
-            drawPaddle();
-
-            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-                dx = -dx;
-            }
-            if (y + dy < ballRadius) {
-                dy = -dy;
-            } else if (y + dy > canvas.height - ballRadius) {
-                if (x > paddleX && x < paddleX + paddleWidth) {
-                    score++;
-                    const scoreDisplay = document.getElementById('scoreDisplay');
-                    scoreDisplay.innerText = `Score: ${score}`;
-                    scoreDisplay.style.color = 'yellow';
-                    setTimeout(() => {
-                        scoreDisplay.style.color = '#fff';
-                    }, 500);
-                    const hitPosition = (x - paddleX) / paddleWidth;
-                    dx = (hitPosition - 0.5) * 4;
-                    dy = -dy;
-                } else {
-                    resetGameCanvas();
-                }
-            }
-
-            if (rightPressed && paddleX < canvas.width - paddleWidth) {
-                paddleX += 7;
-            } else if (leftPressed && paddleX > 0) {
-                paddleX -= 7;
-            }
-
-            x += dx;
-            y += dy;
-        }
-
-        setInterval(draw, 10);
-    function resetGame() {
-            x = canvas.width / 2;
-            y = canvas.height - 30;
-            dx = 1.5;
-            dy = -1.5;
-            paddleX = (canvas.width - paddleWidth) / 2;
-        }
-    function resetGameCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            x = canvas.width / 2;
-            y = canvas.height - 30;
-            dx = 1.5;
-            dy = -1.5;
-            paddleX = (canvas.width - paddleWidth) / 2;
-            score = 0;
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            scoreDisplay.innerText = `Score: ${score}`;
-            scoreDisplay.style.color = 'red';
-            setTimeout(() => {
-                scoreDisplay.style.color = '#fff';
-            }, 500);
-            draw();
-        }
-    </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Ashwin Sheoran's creative CV: strategist, builder, cricket obsessive, and occasional overthinker."
+    />
+    <meta name="author" content="Ashwin Sheoran" />
+    <meta name="theme-color" content="#f2ecd9" />
+    <meta name="color-scheme" content="light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ashwin Sheoran — 10 Tabs Open" />
+    <meta
+      property="og:description"
+      content="A creative CV for a professionally curious, chronically overcommitted strategist and builder."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Ashwin Sheoran — 10 Tabs Open" />
+    <meta
+      name="twitter:description"
+      content="A creative CV for a professionally curious, chronically overcommitted strategist and builder."
+    />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon-10.svg" />
+    <title>Ashwin Sheoran — 10 Tabs Open</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
