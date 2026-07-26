@@ -335,7 +335,7 @@ svg {
   margin-inline: 0;
 }
 
-.mobile-nav-toggle {
+.mobile-nav-bar {
   display: none;
 }
 
@@ -2062,42 +2062,62 @@ svg {
     overflow: visible;
   }
 
-  .mobile-nav-toggle {
+  .mobile-nav-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    min-height: 3.25rem;
+    background: var(--color-blue);
+  }
+
+  .mobile-nav-current {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
+    gap: 0.55rem;
+    min-width: 0;
     min-height: 3.25rem;
     padding: 0.65rem 0.8rem;
     color: var(--color-paper);
     background: var(--color-blue);
-    border: 0;
     font-family: var(--font-mono);
     font-size: var(--text-ui);
     font-weight: 700;
     letter-spacing: 0.035em;
+    white-space: nowrap;
   }
 
-  .mobile-nav-current {
-    display: inline-flex;
+  .mobile-nav-menu-button {
+    display: flex;
     align-items: center;
-    gap: 0.55rem;
+    justify-content: center;
+    width: clamp(7.4rem, 34vw, 9rem);
+    min-height: 3.25rem;
+    padding: 0.65rem 0.75rem;
+    color: var(--color-acid);
+    background: var(--color-ink);
+    border: 0;
+    border-left: 3px solid var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-ui);
+    font-weight: 700;
+    letter-spacing: 0.035em;
+    white-space: nowrap;
   }
 
-  .mobile-nav-current b,
-  .mobile-nav-toggle > span:last-child {
+  .mobile-nav-current b {
     color: var(--color-acid);
   }
 
-  .tab-navigation[data-menu-open="true"] .mobile-nav-toggle {
-    color: var(--color-ink);
+  .tab-navigation[data-menu-open="true"] .mobile-nav-menu-button {
+    color: var(--color-blue);
     background: var(--color-acid);
   }
 
-  .tab-navigation[data-menu-open="true"] .mobile-nav-current b,
-  .tab-navigation[data-menu-open="true"] .mobile-nav-toggle > span:last-child {
-    color: var(--color-blue);
+  .mobile-nav-menu-button:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 3px solid var(--color-acid);
+    outline-offset: -5px;
   }
 
   .tab-navigation__track {

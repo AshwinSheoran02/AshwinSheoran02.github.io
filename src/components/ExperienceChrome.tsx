@@ -58,23 +58,27 @@ export function StickyNavigation({
       aria-label="Profile sections"
       data-menu-open={mobileMenuOpen ? "true" : "false"}
     >
-      <button
-        ref={toggleRef}
-        type="button"
-        className="mobile-nav-toggle"
-        aria-expanded={mobileMenuOpen}
-        aria-controls="profile-section-links"
-        aria-label={
-          mobileMenuOpen ? "Close section menu" : "Open section menu"
-        }
-        onClick={() => setMobileMenuOpen((open) => !open)}
-      >
+      <div className="mobile-nav-bar">
         <span className="mobile-nav-current">
           <b aria-hidden="true">{String(activeIndex + 1).padStart(2, "0")}</b>
           {activeItem.label}
         </span>
-        <span aria-hidden="true">{mobileMenuOpen ? "CLOSE ×" : "MENU +"}</span>
-      </button>
+        <button
+          ref={toggleRef}
+          type="button"
+          className="mobile-nav-menu-button"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="profile-section-links"
+          aria-label={
+            mobileMenuOpen ? "Close section menu" : "Open section menu"
+          }
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          <span aria-hidden="true">
+            {mobileMenuOpen ? "CLOSE ×" : "MENU +"}
+          </span>
+        </button>
+      </div>
       <div id="profile-section-links" className="tab-navigation__track">
         {items.map((item, index) => (
           <a

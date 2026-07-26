@@ -347,7 +347,7 @@ test.describe("mobile composition", () => {
     const navigationTrack = profileNavigation.locator(
       ".tab-navigation__track",
     );
-    const menuToggle = profileNavigation.locator(".mobile-nav-toggle");
+    const menuToggle = profileNavigation.locator(".mobile-nav-menu-button");
 
     await expect
       .poll(() =>
