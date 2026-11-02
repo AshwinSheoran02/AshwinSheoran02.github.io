@@ -114,10 +114,11 @@ beforeEach(() => {
     value: vi.fn(),
   });
 
-  Object.defineProperty(HTMLMediaElement.prototype, "pause", {
+  // jsdom has no WebGL (or 2D canvas): the app must fall back to the still gallery.
+  Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
     configurable: true,
     writable: true,
-    value: vi.fn(),
+    value: vi.fn(() => null),
   });
 
   animationFrameId = 0;

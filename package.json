@@ -1,5 +1,5 @@
 {
-  "name": "10-tabs-open",
+  "name": "ashwin-top",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -21,17 +21,22 @@
     "check": "npm run lint && npm run typecheck && npm run test && vite build"
   },
   "dependencies": {
-    "@fontsource/archivo-black": "^5.3.0",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.2.7",
-    "@fontsource/space-grotesk": "^5.3.0",
-    "lucide-react": "^1.25.0",
-    "motion": "^12.42.2",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
+    "n8ao": "^2.0.1",
+    "postprocessing": "^6.39.6",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@eslint/js": "^10.0.1",
+    "@fontsource/bricolage-grotesque": "^5.3.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/vite": "^4.3.2",
     "@testing-library/dom": "^10.4.1",
@@ -41,6 +46,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.10",
     "axe-core": "^4.12.1",
@@ -49,6 +55,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^17.7.0",
     "jsdom": "^29.1.1",
+    "opentype.js": "^2.0.0",
     "tailwindcss": "^4.3.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.65.0",

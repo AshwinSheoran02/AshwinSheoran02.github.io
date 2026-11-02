@@ -27,6 +27,16 @@ export default defineConfig([
     },
   },
   {
+    // The 3D scene follows the react-three-fiber model: three.js objects are
+    // created once and then mutated imperatively inside the render loop, and
+    // scene modules export small helpers alongside components.
+    files: ['src/three/**/*.{ts,tsx}'],
+    rules: {
+      'react-hooks/immutability': 'off',
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     files: ['*.config.ts'],
     languageOptions: {
       globals: globals.node,

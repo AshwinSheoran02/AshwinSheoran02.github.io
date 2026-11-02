@@ -7,6 +7,10 @@ function normalizeSiteBasePath(value: string | undefined) {
 
 const previewOrigin = 'http://127.0.0.1:4173'
 const siteBasePath = normalizeSiteBasePath(process.env.SITE_BASE_PATH)
+// Optional: point at an installed Chrome when Playwright's own browsers are not available.
+const chromeLaunch = process.env.PLAYWRIGHT_CHROME_PATH
+  ? { executablePath: process.env.PLAYWRIGHT_CHROME_PATH }
+  : {}
 const previewUrl = new URL(siteBasePath, previewOrigin).toString()
 
 export default defineConfig({
@@ -24,7 +28,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], launchOptions: chromeLaunch },
     },
     {
       name: 'webkit',
@@ -32,7 +36,7 @@ export default defineConfig({
     },
     {
       name: 'mobile-chrome',
-      use: { ...devices['Pixel 7'] },
+      use: { ...devices['Pixel 7'], launchOptions: chromeLaunch },
     },
   ],
   webServer: {
