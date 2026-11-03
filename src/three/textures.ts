@@ -285,6 +285,159 @@ export function skyTexture(): Texture {
   );
 }
 
+/**
+ * What you see through the exit door: a late-afternoon garden terrace with a long
+ * reflecting pool, cypresses and hills fading into haze. The horizon sits at
+ * `horizon` (fraction from the top) so it lines up with the visitor's eye level.
+ */
+export function vistaTexture(horizon = 0.56): Texture {
+  const rand = seeded(907);
+  return paintTexture(
+    1024,
+    1024,
+    (g, w, h) => {
+      const hy = h * horizon;
+      const sunX = w * 0.54;
+      const sunY = hy - h * 0.085;
+
+      const sky = g.createLinearGradient(0, 0, 0, hy);
+      sky.addColorStop(0, "#c9d3d6");
+      sky.addColorStop(0.45, "#efe2c9");
+      sky.addColorStop(0.85, "#ffd9a0");
+      sky.addColorStop(1, "#ffcf8a");
+      g.fillStyle = sky;
+      g.fillRect(0, 0, w, hy + 2);
+
+      // Thin high cloud catching the light.
+      clouds(g, w, hy * 0.7, rand, 26, "rgba(255,240,214,1)", 0.35, w * 0.08);
+
+      // Sun glow.
+      const glow = g.createRadialGradient(sunX, sunY, 0, sunX, sunY, w * 0.42);
+      glow.addColorStop(0, "rgba(255,248,226,1)");
+      glow.addColorStop(0.08, "rgba(255,236,190,0.95)");
+      glow.addColorStop(0.35, "rgba(255,214,150,0.35)");
+      glow.addColorStop(1, "rgba(255,200,130,0)");
+      g.fillStyle = glow;
+      g.fillRect(0, 0, w, h);
+
+      // Hills in aerial perspective: furthest is palest.
+      const ridge = (base: number, amplitude: number, color: string, seed: number) => {
+        const r = seeded(seed);
+        const phases = [r() * 6, r() * 6, r() * 6];
+        g.fillStyle = color;
+        g.beginPath();
+        g.moveTo(0, hy + 4);
+        for (let x = 0; x <= w; x += 4) {
+          const t = x / w;
+          const y =
+            base -
+            amplitude *
+              (0.55 * Math.sin(t * 5.2 + phases[0]) + 0.3 * Math.sin(t * 11.7 + phases[1]) + 0.15 * Math.sin(t * 23 + phases[2]));
+          g.lineTo(x, Math.min(hy + 4, y));
+        }
+        g.lineTo(w, hy + 4);
+        g.closePath();
+        g.fill();
+      };
+      ridge(hy - h * 0.035, h * 0.03, "#e8c99c", 11);
+      ridge(hy - h * 0.012, h * 0.022, "#cfae80", 12);
+      ridge(hy + 2, h * 0.014, "#a99068", 13);
+
+      // Terrace: warm stone receding to a clipped hedge at the horizon.
+      const ground = g.createLinearGradient(0, hy, 0, h);
+      ground.addColorStop(0, "#8e7c58");
+      ground.addColorStop(0.04, "#c9b18a");
+      ground.addColorStop(1, "#e3d2b4");
+      g.fillStyle = ground;
+      g.fillRect(0, hy, w, h - hy);
+      g.fillStyle = "#5f5a3c";
+      g.fillRect(0, hy - h * 0.004, w, h * 0.012);
+
+      // Reflecting pool: a perspective trapezoid holding the sky and the sun.
+      const poolTop = hy + h * 0.012;
+      g.beginPath();
+      g.moveTo(w * 0.488, poolTop);
+      g.lineTo(w * 0.512, poolTop);
+      g.lineTo(w * 0.66, h);
+      g.lineTo(w * 0.34, h);
+      g.closePath();
+      const water = g.createLinearGradient(0, poolTop, 0, h);
+      water.addColorStop(0, "#ffe2ad");
+      water.addColorStop(0.25, "#f1d7ab");
+      water.addColorStop(1, "#b9c3c0");
+      g.fillStyle = water;
+      g.fill();
+      g.save();
+      g.clip();
+      const shimmer = g.createRadialGradient(sunX, poolTop, 0, sunX, poolTop, h * 0.3);
+      shimmer.addColorStop(0, "rgba(255,250,232,1)");
+      shimmer.addColorStop(1, "rgba(255,240,200,0)");
+      g.fillStyle = shimmer;
+      g.fillRect(0, poolTop, w, h - poolTop);
+      g.restore();
+      // Stone coping either side of the pool.
+      g.strokeStyle = "rgba(246,236,214,0.9)";
+      g.lineWidth = 3;
+      for (const [top, bottom] of [
+        [0.488, 0.34],
+        [0.512, 0.66],
+      ]) {
+        g.beginPath();
+        g.moveTo(w * top, poolTop);
+        g.lineTo(w * bottom, h);
+        g.stroke();
+      }
+
+      // Cypress rows flanking the pool, smaller and paler towards the horizon.
+      const cypress = (x: number, base: number, height: number, fade: number) => {
+        const width = height * 0.085;
+        const tone = (r: number, gr: number, b: number) =>
+          `rgb(${Math.round(r + (226 - r) * fade)},${Math.round(gr + (200 - gr) * fade)},${Math.round(b + (160 - b) * fade)})`;
+        const body = g.createLinearGradient(x - width, 0, x + width, 0);
+        body.addColorStop(0, tone(46, 50, 36));
+        body.addColorStop(0.55, tone(70, 72, 48));
+        body.addColorStop(0.8, tone(118, 104, 66));
+        body.addColorStop(1, tone(52, 54, 38));
+        g.fillStyle = body;
+        g.beginPath();
+        g.moveTo(x, base - height);
+        g.bezierCurveTo(x + width * 0.55, base - height * 0.82, x + width * 1.05, base - height * 0.32, x + width * 0.42, base);
+        g.lineTo(x - width * 0.42, base);
+        g.bezierCurveTo(x - width * 1.05, base - height * 0.32, x - width * 0.55, base - height * 0.82, x, base - height);
+        g.fill();
+        // Foliage texture: small darker tufts.
+        g.fillStyle = `rgba(30,34,24,${0.22 * (1 - fade)})`;
+        for (let i = 0; i < height / 3; i += 1) {
+          const t = rand();
+          const yy = base - height * (0.05 + 0.85 * t);
+          const half = width * (0.25 + 0.6 * Math.sin(Math.PI * (1 - t * 0.9)) * 0.9);
+          g.beginPath();
+          g.ellipse(x + (rand() - 0.5) * half * 1.4, yy, width * 0.18, width * 0.1, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+      };
+      for (let k = 6; k >= 0; k -= 1) {
+        const depth = Math.pow(k / 6, 1.5);
+        const base = h - (h - hy) * (1 - Math.pow(1 - depth, 2.4)) * 0.985;
+        const spread = 0.05 + (1 - depth) * 0.2;
+        const height = h * 0.5 * (1 - depth * 0.94) * (0.94 + rand() * 0.1);
+        const fade = Math.min(0.85, depth * 0.95);
+        cypress(w * (0.5 - spread), base, height, fade);
+        cypress(w * (0.5 + spread), base, height * (0.96 + rand() * 0.08), fade);
+      }
+
+      // Haze over everything near the horizon.
+      const haze = g.createLinearGradient(0, hy - h * 0.12, 0, hy + h * 0.08);
+      haze.addColorStop(0, "rgba(255,226,180,0)");
+      haze.addColorStop(0.6, "rgba(255,226,180,0.45)");
+      haze.addColorStop(1, "rgba(255,226,180,0)");
+      g.fillStyle = haze;
+      g.fillRect(0, hy - h * 0.12, w, h * 0.2);
+    },
+    { clamp: true },
+  );
+}
+
 const POOL_BALL_COLORS: Record<number, string> = {
   1: "#f3b61b",
   2: "#1f4fb8",

@@ -1,14 +1,27 @@
 import { MeshReflectorMaterial } from "@react-three/drei";
 import { useEffect, useMemo, useState } from "react";
-import { PlaneGeometry, type BufferGeometry, type Texture } from "three";
+import { CircleGeometry, PlaneGeometry, type BufferGeometry, type Texture } from "three";
 import { HALL, Z_END } from "../layout";
-import { useMaterials } from "../materials";
+import { useMaterials, VISTA_HORIZON } from "../materials";
 import type { QualitySettings } from "../quality";
 import { InstancedBoxes, type BoxSpec } from "../helpers";
 import { floorColorTexture, floorRoughnessTexture } from "../textures";
 
 const LENGTH = HALL.zStart - Z_END;
 const Z_MID = (HALL.zStart + Z_END) / 2;
+
+/*
+ * The painted garden behind the exit. Its horizon is placed at the eye height of the
+ * closing camera (about 2.4 m), so the view through the door reads as level ground.
+ */
+const VISTA = (() => {
+  const size = 9;
+  const eye = 2.4;
+  const top = eye + VISTA_HORIZON * size;
+  const centreY = top - size / 2;
+  const sun: [number, number] = [(0.54 - 0.5) * size, top - (VISTA_HORIZON - 0.085) * size];
+  return { size, centreY, sun, z: Z_END - 4 };
+})();
 
 function scaledPlane(width: number, height: number, tile: number): PlaneGeometry {
   const geometry = new PlaneGeometry(width, height);
@@ -170,6 +183,8 @@ export function Hall({ quality }: { quality: QualitySettings }) {
   const entrance = useGeometry(() => scaledPlane(HALL.halfWidth * 2, HALL.height, 4));
   const sky = useGeometry(() => new PlaneGeometry(LENGTH + 40, 16));
   const daylight = useGeometry(() => new PlaneGeometry(40, 20));
+  const vista = useGeometry(() => new PlaneGeometry(VISTA.size, VISTA.size));
+  const sunDisc = useGeometry(() => new CircleGeometry(0.11, 40));
   const baseboards = useMemo<BoxSpec[]>(
     () => [
       { p: [HALL.halfWidth - 0.03, 0.07, Z_MID], s: [0.06, 0.14, LENGTH] },
@@ -217,6 +232,9 @@ export function Hall({ quality }: { quality: QualitySettings }) {
         rotation-y={Math.PI / 2}
       />
       <mesh geometry={daylight} material={m.daylight} position={[0, 6, Z_END - 6]} />
+      {/* The garden beyond the exit, with the sun low over it. */}
+      <mesh geometry={vista} material={m.vista} position={[0, VISTA.centreY, VISTA.z]} />
+      <mesh geometry={sunDisc} material={m.sunDisc} position={[VISTA.sun[0], VISTA.sun[1], VISTA.z + 0.01]} />
     </group>
   );
 }

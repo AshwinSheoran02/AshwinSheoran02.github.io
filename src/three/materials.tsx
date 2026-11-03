@@ -17,8 +17,12 @@ import {
   plasterTexture,
   skyTexture,
   travertineTexture,
+  vistaTexture,
   walnutTexture,
 } from "./textures";
+
+/** Where the horizon sits in the exit vista, as a fraction from the top. */
+export const VISTA_HORIZON = 0.56;
 
 /*
  * Shared physically based materials. Created once per quality tier and
@@ -42,6 +46,7 @@ function createMaterials(quality: QualitySettings) {
   const fineNoise = keep(noiseTexture(5, 256));
   fineNoise.repeat.set(6, 6);
   const sky = keep(skyTexture());
+  const vista = keep(vistaTexture(VISTA_HORIZON));
 
   const glass = (options: {
     color?: string;
@@ -66,14 +71,26 @@ function createMaterials(quality: QualitySettings) {
         clearcoat: 0.2,
       });
     }
-    // Without refraction, tinted glass is drawn as dense translucent resin so it keeps its presence.
+    // Without refraction, tinted glass becomes polished obsidian: opaque, so the light
+    // shafts (also transparent) can never sort in front of it and wash it out.
     const tinted = (options.thickness ?? 0.4) > 0.8;
+    if (tinted) {
+      return new MeshPhysicalMaterial({
+        color: "#2c3331",
+        metalness: 0,
+        roughness: 0.06,
+        envMapIntensity: 1.6,
+        clearcoat: 1,
+        clearcoatRoughness: 0.02,
+        specularIntensity: 1,
+      });
+    }
     return new MeshPhysicalMaterial({
-      color: tinted ? "#3a403e" : (options.attenuation ?? "#dfe8e4"),
+      color: options.attenuation ?? "#dfe8e4",
       metalness: 0,
       roughness: 0.04,
       transparent: true,
-      opacity: tinted ? 0.86 : 0.28,
+      opacity: 0.28,
       depthWrite: false,
       envMapIntensity: 1.8,
       clearcoat: 1,
@@ -164,6 +181,9 @@ function createMaterials(quality: QualitySettings) {
     }),
     sky: new MeshBasicMaterial({ map: sky, color: new Color(1.9, 1.75, 1.5), fog: false }),
     daylight: new MeshBasicMaterial({ color: new Color(2.6, 2.35, 2.0), fog: false }),
+    // Slightly over 1 so the garden outside reads as brighter than the hall, and the sky blooms.
+    vista: new MeshBasicMaterial({ map: vista, color: new Color(1.32, 1.26, 1.16), fog: false }),
+    sunDisc: new MeshBasicMaterial({ color: new Color(7, 6, 4.6), fog: false }),
     skylight: new MeshBasicMaterial({ color: new Color(1.25, 1.22, 1.17), side: DoubleSide, fog: false }),
     shadowCatcher: new MeshBasicMaterial({ color: "#000", transparent: true, opacity: 0 }),
     brassLine: new LineBasicMaterial({ color: "#c9a04f" }),

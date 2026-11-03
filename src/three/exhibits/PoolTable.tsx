@@ -2,14 +2,18 @@ import { RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type ReactElement } from "react";
 import {
+  CircleGeometry,
   Color,
   CylinderGeometry,
+  DoubleSide,
+  ExtrudeGeometry,
   Group,
   InstancedMesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
   Quaternion,
+  Shape,
   SphereGeometry,
   Vector3,
 } from "three";
@@ -67,7 +71,77 @@ interface Ball {
 
 type Phase = "ready" | "aim" | "strike" | "rolling" | "settled" | "rerack";
 
-function staticBoxes(): { wood: BoxSpec[]; cushions: BoxSpec[]; chrome: BoxSpec[] } {
+const RAIL_TOP = BED_TOP + 0.06;
+const IRON_DEPTH = 0.075;
+const LINER_HEIGHT = 0.09;
+
+/*
+ * Pocket irons: brass castings that wrap each pocket, cut with the pocket's curve.
+ * Shapes are drawn in table x/z for the (+x, +z) corner and the +z side pocket, then
+ * mirrored into place.
+ */
+function pocketIronGeometries() {
+  const [cx, cz, cr] = POCKETS[3];
+  const rho = cr + 0.008;
+  const inner = 0.05;
+  const arm = 0.07;
+  const corner = new Shape();
+  const ez = HZ + inner - cz;
+  const ex = HX + inner - cx;
+  const a0 = Math.atan2(ez, -Math.sqrt(rho * rho - ez * ez));
+  const a1 = Math.atan2(-Math.sqrt(rho * rho - ex * ex), ex);
+  corner.moveTo(HX - arm, HZ + inner);
+  corner.lineTo(cx + rho * Math.cos(a0), cz + rho * Math.sin(a0));
+  corner.absarc(cx, cz, rho, a0, a1, true);
+  corner.lineTo(HX + inner, HZ - arm);
+  corner.lineTo(OUTER_X, HZ - arm);
+  corner.lineTo(OUTER_X, OUTER_Z - 0.05);
+  corner.absarc(OUTER_X - 0.05, OUTER_Z - 0.05, 0.05, 0, Math.PI / 2, false);
+  corner.lineTo(HX - arm, OUTER_Z);
+  corner.closePath();
+
+  const [, sz, sr] = POCKETS[5];
+  const sideRho = sr + 0.008;
+  const dz = HZ + inner - sz;
+  const s0 = Math.atan2(dz, -Math.sqrt(sideRho * sideRho - dz * dz));
+  const s1 = Math.atan2(dz, Math.sqrt(sideRho * sideRho - dz * dz));
+  const side = new Shape();
+  side.moveTo(-0.1, HZ + inner);
+  side.lineTo(sideRho * Math.cos(s0), sz + sideRho * Math.sin(s0));
+  side.absarc(0, sz, sideRho, s0, s1, true);
+  side.lineTo(0.1, HZ + inner);
+  side.lineTo(0.1, OUTER_Z);
+  side.lineTo(-0.1, OUTER_Z);
+  side.closePath();
+
+  // Leather lining only on the far side of each pocket, where the cut through the iron is.
+  const linerRadius = rho - 0.005;
+  const lining = (radius: number, from: number, to: number) =>
+    new CylinderGeometry(radius, radius * 0.92, LINER_HEIGHT, 40, 1, true, Math.PI / 2 - from, from - to);
+
+  const extrude = (shape: Shape) => {
+    const geometry = new ExtrudeGeometry(shape, {
+      depth: IRON_DEPTH,
+      bevelEnabled: true,
+      bevelThickness: 0.004,
+      bevelSize: 0.004,
+      bevelSegments: 3,
+      curveSegments: 28,
+    });
+    // Shape y becomes table z; the extrusion runs downwards from the top face.
+    geometry.rotateX(Math.PI / 2);
+    geometry.computeVertexNormals();
+    return geometry;
+  };
+  return {
+    corner: extrude(corner),
+    side: extrude(side),
+    cornerLiner: lining(linerRadius, a0, a1),
+    sideLiner: lining(sideRho - 0.005, s0, s1),
+  };
+}
+
+function staticBoxes(): { wood: BoxSpec[]; cushions: BoxSpec[] } {
   const railY = BED_TOP + 0.03;
   const wood: BoxSpec[] = [];
   const gapCorner = 0.075;
@@ -93,14 +167,7 @@ function staticBoxes(): { wood: BoxSpec[]; cushions: BoxSpec[]; chrome: BoxSpec[
   for (const sx of [-1, 1]) {
     cushions.push({ p: [sx * (HX + CUSHION / 2), cushionY, 0], s: [CUSHION, 0.036, (HZ - gapCorner) * 2] });
   }
-  const chrome: BoxSpec[] = [];
-  for (const sx of [-1, 1]) {
-    for (const sz of [-1, 1]) {
-      chrome.push({ p: [sx * (OUTER_X - 0.09), railY + 0.002, sz * (OUTER_Z - 0.09)], s: [0.2, 0.064, 0.2] });
-    }
-  }
-  for (const sz of [-1, 1]) chrome.push({ p: [0, railY + 0.002, sz * (OUTER_Z - 0.075)], s: [0.16, 0.064, 0.15] });
-  return { wood, cushions, chrome };
+  return { wood, cushions };
 }
 
 export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
@@ -117,6 +184,9 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
         new MeshPhysicalMaterial({ map, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.3 }),
     );
     const pocket = new MeshBasicMaterial({ color: "#050403" });
+    const liner = new MeshPhysicalMaterial({ color: "#14100d", roughness: 0.55, clearcoat: 0.3, side: DoubleSide });
+    const irons = pocketIronGeometries();
+    const hole = new CircleGeometry(1, 40);
     const pearl = new MeshPhysicalMaterial({ color: "#f3efe4", roughness: 0.25, iridescence: 0.6, clearcoat: 1 });
     const diamonds = new InstancedMesh(new SphereGeometry(0.009, 12, 8), pearl, 18);
     const dummy = new Object3D();
@@ -144,7 +214,7 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
     const chalk = new MeshPhysicalMaterial({ color: "#3d78b8", roughness: 0.9 });
     const lampGlow = new MeshBasicMaterial({ color: new Color(2.2, 2.05, 1.8) });
     const leg = new CylinderGeometry(0.07, 0.055, 0.64, 24);
-    return { geometry, textures, materials, pocket, pearl, diamonds, maple, chalk, lampGlow, leg };
+    return { geometry, textures, materials, pocket, liner, irons, hole, pearl, diamonds, maple, chalk, lampGlow, leg };
   }, []);
 
   useEffect(
@@ -153,6 +223,9 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
       resources.textures.forEach((t) => t.dispose());
       resources.materials.forEach((material) => material.dispose());
       resources.pocket.dispose();
+      resources.liner.dispose();
+      Object.values(resources.irons).forEach((geometry) => geometry.dispose());
+      resources.hole.dispose();
       resources.pearl.dispose();
       resources.diamonds.geometry.dispose();
       resources.diamonds.dispose();
@@ -278,13 +351,39 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
       </mesh>
       <InstancedBoxes boxes={boxes.cushions} material={m.felt} castShadow receiveShadow />
       <InstancedBoxes boxes={boxes.wood} material={m.walnut} castShadow receiveShadow />
-      <InstancedBoxes boxes={boxes.chrome} material={m.chrome} castShadow receiveShadow />
       <primitive object={resources.diamonds} />
+      {/* Pockets: a dark mouth in the cloth, leather lining, and a brass iron cut to the pocket's curve. */}
       {POCKETS.map(([x, z, r]) => (
-        <mesh key={`${x}-${z}`} position={[x, BED_TOP - 0.03, z]} material={resources.pocket}>
-          <cylinderGeometry args={[r, r * 0.9, 0.12, 32]} />
-        </mesh>
+        <mesh
+          key={`hole${x}${z}`}
+          geometry={resources.hole}
+          material={resources.pocket}
+          position={[x, BED_TOP + 0.0015, z]}
+          rotation-x={-Math.PI / 2}
+          scale={r}
+        />
       ))}
+      {POCKETS.map(([x, z], index) => {
+        const isSide = index >= 4;
+        const mirror: [number, number, number] = [isSide ? 1 : Math.sign(x), 1, Math.sign(z)];
+        const [lx, lz] = isSide ? POCKETS[5] : POCKETS[3];
+        return (
+          <group key={`iron${index}`} scale={mirror}>
+            <mesh
+              geometry={isSide ? resources.irons.sideLiner : resources.irons.cornerLiner}
+              material={resources.liner}
+              position={[lx, RAIL_TOP + 0.008 - LINER_HEIGHT / 2, lz]}
+            />
+            <mesh
+              geometry={isSide ? resources.irons.side : resources.irons.corner}
+              material={m.brass}
+              position-y={RAIL_TOP + 0.006}
+              castShadow
+              receiveShadow
+            />
+          </group>
+        );
+      })}
       {/* Apron and legs */}
       <RoundedBox args={[OUTER_X * 2, 0.17, OUTER_Z * 2]} radius={0.02} position={[0, BED_TOP - 0.1, 0]} material={m.walnutMatte} castShadow receiveShadow />
       {[-1.15, 0, 1.15].flatMap((x) =>
