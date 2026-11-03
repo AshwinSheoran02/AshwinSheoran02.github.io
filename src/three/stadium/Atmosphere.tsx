@@ -249,7 +249,7 @@ export function FloodLighting({ quality }: { quality: QualitySettings }) {
   return (
     <>
       <ShadowKey index={0} intensity={3.3} quality={quality} castShadow />
-      <ShadowKey index={3} intensity={2.4} quality={quality} castShadow={quality.tier === "high"} />
+      <ShadowKey index={3} intensity={2.4} quality={quality} castShadow={quality.doubleShadows} />
       <Fill index={1} intensity={1.6} />
       <Fill index={2} intensity={1.6} />
       <hemisphereLight ref={hemisphere} args={["#3a4a78", "#24481f", 0.6]} />

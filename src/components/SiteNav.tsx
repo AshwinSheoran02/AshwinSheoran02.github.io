@@ -11,6 +11,7 @@ import {
 } from "../data/profile";
 import { navTargetForStation } from "../data/stations";
 import { scrollToTarget } from "../lib/scroll";
+import { onScroll as listenForScroll, scrollRange } from "../lib/scroller";
 import { useUi } from "../lib/store";
 
 const kinds = Object.keys(projectKindLabels) as ProjectKind[];
@@ -241,19 +242,17 @@ function TourProgress() {
     let frame = 0;
     const update = () => {
       frame = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const value = max > 0 ? window.scrollY / max : 0;
+      const { offset, max } = scrollRange();
+      const value = max > 0 ? offset / max : 0;
       ref.current?.style.setProperty("--progress", value.toFixed(4));
     };
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const stop = listenForScroll(onScroll);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      stop();
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);

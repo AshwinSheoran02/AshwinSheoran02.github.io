@@ -20,14 +20,6 @@ export default defineConfig(({ mode }) => {
     build: {
       // The 3D scene is a lazily loaded chunk; three.js alone is ~600 kB before gzip.
       chunkSizeWarningLimit: 1400,
-      rolldownOptions: {
-        treeshake: {
-          // n8ao (ambient occlusion) has no side effects but does not declare it.
-          // Marking it lets the bundler keep it out of the main 3D chunk; it is
-          // loaded on demand for the high quality tier only.
-          moduleSideEffects: (id: string) => !id.includes('node_modules/n8ao'),
-        },
-      },
     },
     server: {
       host: '127.0.0.1',

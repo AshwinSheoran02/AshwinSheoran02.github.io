@@ -4,48 +4,54 @@ export interface QualitySettings {
   readonly tier: QualityTier;
   readonly dpr: [number, number];
   readonly shadowMapSize: number;
+  /** Shadows from both floodlight keys (the double shadows of a night match), or just one. */
+  readonly doubleShadows: boolean;
   readonly postprocessing: boolean;
-  readonly ambientOcclusion: boolean;
   readonly bloom: boolean;
-  /** Volumetric cones under the floodlights. Fill-rate heavy, so off on phones. */
+  /** Volumetric cones under the floodlights. Fill-rate heavy, so desktop GPUs only. */
   readonly beams: boolean;
   readonly environmentResolution: number;
   readonly textureScale: number;
+  /** Spacing of the crowd, in metres between seats and between rows. */
+  readonly crowd: { seat: number; row: number; occupancy: number; scale: number };
 }
 
 export const qualityPresets: Record<QualityTier, QualitySettings> = {
   high: {
     tier: "high",
-    dpr: [1, 1.75],
+    dpr: [1, 1.5],
     shadowMapSize: 2048,
+    doubleShadows: true,
     postprocessing: true,
-    ambientOcclusion: true,
     bloom: true,
     beams: true,
     environmentResolution: 256,
     textureScale: 1,
+    crowd: { seat: 0.62, row: 0.9, occupancy: 0.84, scale: 1 },
   },
   medium: {
     tier: "medium",
-    dpr: [1, 1.35],
+    dpr: [1, 1.25],
     shadowMapSize: 1024,
+    doubleShadows: false,
     postprocessing: true,
-    ambientOcclusion: false,
     bloom: true,
-    beams: true,
-    environmentResolution: 256,
+    beams: false,
+    environmentResolution: 128,
     textureScale: 1,
+    crowd: { seat: 0.78, row: 1.1, occupancy: 0.88, scale: 1.15 },
   },
   low: {
     tier: "low",
-    dpr: [1, 1.5],
+    dpr: [1, 1.25],
     shadowMapSize: 1024,
+    doubleShadows: false,
     postprocessing: false,
-    ambientOcclusion: false,
     bloom: false,
     beams: false,
     environmentResolution: 128,
     textureScale: 0.5,
+    crowd: { seat: 1.05, row: 1.5, occupancy: 0.92, scale: 1.65 },
   },
 };
 
@@ -85,11 +91,13 @@ export function detectInitialTier(): QualityTier {
   const renderer = rendererName();
   if (/swiftshader|llvmpipe|software|basic render/.test(renderer)) return "low";
 
+  // Only discrete desktop GPUs get the full treatment. Integrated graphics, Apple
+  // silicon included, start on medium; the runtime monitor can still step down.
   const memory = nav.deviceMemory ?? 8;
   const cores = nav.hardwareConcurrency ?? 8;
-  if (memory <= 4 || cores <= 4) return "medium";
-  if (/intel/.test(renderer) && !/arc|iris xe/.test(renderer)) return "medium";
-  return "high";
+  const discrete = /nvidia|geforce|rtx|quadro|radeon rx|radeon pro w|arc a\d/.test(renderer);
+  if (discrete && memory >= 8 && cores >= 8) return "high";
+  return "medium";
 }
 
 export function stepDown(tier: QualityTier): QualityTier {

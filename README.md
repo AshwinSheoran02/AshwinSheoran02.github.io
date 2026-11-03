@@ -86,8 +86,8 @@ balls an over.
 - The giant screen is a canvas per section drawn in broadcast style, wiped in
   through an LED-pixel shader. The perimeter boards and the fascia ribbon
   scroll messages taken from the site's own content.
-- Post-processing: ambient occlusion (high tier only, loaded on demand), bloom,
-  ACES tone mapping, vignette, grain and SMAA.
+- Post-processing: bloom,
+  ACES tone mapping, vignette and SMAA.
 - Set-pieces far from the camera's focus are hidden, so only nearby ones cost
   anything to draw.
 

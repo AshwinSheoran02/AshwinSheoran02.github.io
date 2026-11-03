@@ -90,15 +90,15 @@ function useCrowd(quality: QualitySettings, map: Texture) {
   return useMemo(() => {
     const rand = seeded(2024);
     const sparse = quality.tier === "low";
-    const rowSpacing = sparse ? 1.5 : 0.86;
-    const seatSpacing = sparse ? 1.05 : 0.6;
+    const { seat: seatSpacing, row: rowSpacing, occupancy, scale: personScale } = quality.crowd;
     const seats = [
       ...tierSeats(STANDS.lower.from, STANDS.lower.to, 0, TAU, rowSpacing, seatSpacing),
       ...tierSeats(STANDS.upper.from, STANDS.upper.to, GAP_START, GAP_LENGTH, rowSpacing, seatSpacing),
-    ].filter(() => rand() < (sparse ? 0.92 : 0.84));
+    ].filter(() => rand() < occupancy);
 
-    const width = sparse ? 0.95 : 0.56;
-    const height = sparse ? 1.15 : 0.72;
+    // Fewer people on lighter tiers, each drawn a little larger so the stands still look full.
+    const width = 0.56 * personScale;
+    const height = 0.72 * Math.min(personScale, 1.5);
     const geometry = new PlaneGeometry(width, height);
     geometry.translate(0, height / 2 - 0.12, 0);
     const material = new MeshLambertMaterial({ map, alphaTest: 0.5, side: DoubleSide });
@@ -205,7 +205,7 @@ function useCrowd(quality: QualitySettings, map: Texture) {
     torches.frustumCulled = false;
 
     return { mesh, geometry, material, uniforms, torches, torchGeometry, torchMaterial };
-  }, [quality.tier, map]);
+  }, [quality.tier, quality.crowd, map]);
 }
 
 export function Stands({ quality }: { quality: QualitySettings }) {

@@ -20,14 +20,12 @@ export function Ground({ quality }: { quality: QualitySettings }) {
   const resources = useMemo(() => {
     const field = outfieldTexture(quality.textureScale);
     const detail = grassDetailTexture();
-    const grass = new MeshPhysicalMaterial({
+    // A standard material: the grass covers most of the screen, so it has to be cheap.
+    const grass = new MeshStandardMaterial({
       map: field,
       roughness: 0.88,
       bumpMap: detail,
       bumpScale: 1.1,
-      sheen: 0.25,
-      sheenColor: "#9ed27a",
-      sheenRoughness: 0.6,
       envMapIntensity: 0.4,
     });
     const fieldGeometry = new PlaneGeometry(FIELD_EXTENT * 2, FIELD_EXTENT * 2, 1, 1);

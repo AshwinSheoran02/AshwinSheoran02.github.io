@@ -131,7 +131,7 @@ export const hero = {
     { label: "B.Tech CSAM", value: "IIIT Delhi" },
     { label: "Former Associate", value: "NAB" },
     { label: "Business Management", value: "XLRI Delhi-NCR" },
-    { label: "Currently exploring", value: "Product × Media × Management" },
+    { label: "Currently exploring", value: "Product × Management" },
   ],
   cta: "Start the innings",
   ticker: [

@@ -1,6 +1,6 @@
 import { PerformanceMonitor } from "@react-three/drei";
-import { Canvas, events as createPointerEvents } from "@react-three/fiber";
-import { Component, useEffect, useState, type ReactNode } from "react";
+import { Canvas, events as createPointerEvents, useFrame } from "@react-three/fiber";
+import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { PCFShadowMap } from "three";
 import { rig, ui, type QualityTier } from "../lib/store";
 import { qualityPresets, stepDown } from "./quality";
@@ -56,6 +56,38 @@ function filteredEvents(store: Parameters<typeof createPointerEvents>[0]) {
     };
   }
   return { ...manager, handlers: wrapped as unknown as typeof manager.handlers };
+}
+
+/*
+ * Last line of defence: if even the lightest tier cannot hold a usable frame
+ * rate, swap to the still frames rather than leave a stuttering page.
+ */
+function SlowGuard({ tier, onTooSlow }: { tier: QualityTier; onTooSlow: () => void }) {
+  const window_ = useRef({ start: -1, frames: 0, strikes: 0, done: false });
+  useFrame((state) => {
+    const w = window_.current;
+    if (w.done || rig.capture || !ui.get().sceneReady || tier !== "low") {
+      w.start = -1;
+      return;
+    }
+    const now = state.clock.elapsedTime;
+    if (w.start < 0) {
+      w.start = now;
+      w.frames = 0;
+      return;
+    }
+    w.frames += 1;
+    if (now - w.start < 3) return;
+    const fps = w.frames / (now - w.start);
+    w.strikes = fps < 14 ? w.strikes + 1 : 0;
+    w.start = now;
+    w.frames = 0;
+    if (w.strikes >= 2) {
+      w.done = true;
+      onTooSlow();
+    }
+  });
+  return null;
 }
 
 export default function Experience({
@@ -126,10 +158,11 @@ export default function Experience({
         }}
       >
         <PerformanceMonitor
-          bounds={() => [42, 120]}
+          bounds={() => [40, 120]}
           flipflops={3}
           onDecline={() => setTier((current) => (current === "low" ? current : stepDown(current)))}
         />
+        <SlowGuard tier={tier} onTooSlow={() => onFailure("frame rate too low")} />
         <World
           quality={quality}
           antialiased={antialiased}

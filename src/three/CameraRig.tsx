@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, MathUtils, Vector3, type PerspectiveCamera } from "three";
+import { scrollOffset } from "../lib/scroller";
 import { rig, ui } from "../lib/store";
 import { clamp01, damp, easeInOut, easeOutCubic } from "./helpers";
 import { INTRO_FROM, keyframes, type Keyframe } from "./layout";
@@ -85,7 +86,8 @@ export function CameraRig({ introSeconds = 5.2 }: { introSeconds?: number }) {
   );
 
   useFrame((frameState, delta) => {
-    const dt = Math.min(delta, 0.1);
+    // Smoothing works in real time even on a slow machine, so the camera never lags far behind the scroll.
+    const dt = Math.min(delta, 0.3);
     const s = state.current;
     const aspect = size.width / Math.max(1, size.height);
     const reduced = rig.reducedMotion;
@@ -123,12 +125,14 @@ export function CameraRig({ introSeconds = 5.2 }: { introSeconds?: number }) {
     if (sceneReady && s.introStart < 0) {
       s.introStart = frameState.clock.elapsedTime;
       // Arriving mid-page (a restored scroll position or a deep link) skips the opening flight.
-      s.introSkipped = window.scrollY > 40;
+      s.introSkipped = scrollOffset() > 40;
     }
     const skipIntro = reduced || rig.capture || s.introSkipped;
     if (!skipIntro && s.introStart >= 0 && frameState.clock.elapsedTime - s.introStart > 1.2) {
       // Any scroll, key or tap during the flight fast-forwards it rather than cutting.
-      s.introProgress = Math.min(1, s.introProgress + (dt / introSeconds) * (introHurry.current ? 5 : 1));
+      // Wall-clock time, so the flight takes the same few seconds however slow the frames are.
+      const wall = Math.min(delta, 0.5);
+      s.introProgress = Math.min(1, s.introProgress + (wall / introSeconds) * (introHurry.current ? 5 : 1));
     }
     const progress = skipIntro ? 1 : s.introProgress;
     if (progress < 1) {
@@ -141,7 +145,8 @@ export function CameraRig({ introSeconds = 5.2 }: { introSeconds?: number }) {
       temp.position.copy(intro.point);
       temp.target.copy(intro.look);
     }
-    if (progress >= 1 && !ui.get().introDone) ui.set({ introDone: true });
+    // The lower third comes in for the last part of the flight, not after it.
+    if (progress >= 0.7 && !ui.get().introDone) ui.set({ introDone: true });
     // Never let the spidercam dip into the turf between stations.
     temp.position.y = Math.max(temp.position.y, 0.45);
 

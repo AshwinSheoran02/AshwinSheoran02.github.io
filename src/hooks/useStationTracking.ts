@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { onScroll as listenForScroll, scrollRange } from "../lib/scroller";
 import { rig, ui } from "../lib/store";
 
 /*
@@ -23,12 +24,11 @@ export function useStationTracking() {
 
     const measure = () => {
       const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-station]"));
-      const viewport = window.innerHeight;
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - viewport);
+      const { offset, max: maxScroll, viewport } = scrollRange();
       ids = elements.map((element) => element.dataset.station ?? "");
       anchors = elements.map((element) => {
         const rect = element.getBoundingClientRect();
-        const top = rect.top + window.scrollY;
+        const top = rect.top + offset;
         const centre = top + Math.min(rect.height, viewport * 1.4) / 2 - viewport / 2;
         return Math.min(maxScroll, Math.max(0, centre));
       });
@@ -42,7 +42,7 @@ export function useStationTracking() {
     const update = () => {
       frame = 0;
       if (!anchors.length || locked) return;
-      const y = window.scrollY;
+      const y = scrollRange().offset;
       let station = 0;
       if (y >= anchors[anchors.length - 1]) {
         station = anchors.length - 1;
@@ -82,13 +82,13 @@ export function useStationTracking() {
     }
     const observer = new ResizeObserver(() => measure());
     observer.observe(document.body);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const stopListening = listenForScroll(onScroll);
     window.addEventListener("resize", measure);
     document.fonts?.ready.then(measure).catch(() => undefined);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", onScroll);
+      stopListening();
       window.removeEventListener("resize", measure);
       if (frame) window.cancelAnimationFrame(frame);
     };
