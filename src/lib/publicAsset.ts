@@ -1,5 +1,8 @@
 function normalizeBaseUrl(value: string) {
-  const path = value.trim().replace(/^\/+|\/+$/g, '')
+  const trimmed = value.trim()
+  // A relative base (used for self-contained preview builds) keeps asset paths relative too.
+  if (trimmed === '' || trimmed === '.' || trimmed === './') return './'
+  const path = trimmed.replace(/^\/+|\/+$/g, '')
   return path ? `/${path}/` : '/'
 }
 

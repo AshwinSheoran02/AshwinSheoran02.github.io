@@ -1,6 +1,7 @@
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useState } from "react";
+import { fieldPositions } from "../../data/field";
 import { about, facts, interests, statement } from "../../data/profile";
-import { ui, useUi } from "../../lib/store";
+import { ui } from "../../lib/store";
 import { Lines, Panel, Station } from "../Panel";
 
 function MainPlot() {
@@ -26,76 +27,43 @@ function MainPlot() {
 }
 
 function Interests() {
-  const selected = useUi((state) => state.interest);
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const items = interests.items;
-  const active = items.find((item) => item.id === selected) ?? items[0];
-
-  const select = (index: number) => {
-    const wrapped = (index + items.length) % items.length;
-    ui.set({ interest: items[wrapped].id });
-    tabs.current[wrapped]?.focus();
-  };
-  const onKey = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const moves: Record<string, number> = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: items.length - 1 };
-    if (event.key in moves) {
-      event.preventDefault();
-      select(moves[event.key]);
-    }
-  };
-
   return (
-    <Station station="interests" labelledBy="interests-title" className="station--interests">
-      <Panel label={interests.label}>
-        <h2 id="interests-title" className="display">
-          <Lines lines={interests.headline} />
-        </h2>
-        <div className="tabs" role="tablist" aria-label="Interests">
-          {items.map((item, index) => (
-            <button
-              key={item.id}
-              ref={(element) => {
-                tabs.current[index] = element;
-              }}
-              id={`interest-tab-${item.id}`}
-              type="button"
-              role="tab"
-              aria-selected={item.id === active.id}
-              aria-controls="interest-panel"
-              tabIndex={item.id === active.id ? 0 : -1}
-              onClick={() => ui.set({ interest: item.id })}
-              onKeyDown={(event) => onKey(event, index)}
-            >
-              <small>{item.number}</small>
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <div
-          id="interest-panel"
-          className="tab-panel"
-          role="tabpanel"
-          aria-labelledby={`interest-tab-${active.id}`}
-          tabIndex={0}
-          key={active.id}
-        >
-          <p className="object-caption">
-            <span>On the plinth</span> {active.object}
-          </p>
-          {active.body.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-          {"callout" in active && active.callout ? (
-            <ul className="callout">
-              {active.callout.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          ) : null}
-          {"note" in active && active.note ? <p className="aside-note">{active.note}</p> : null}
-        </div>
-      </Panel>
-    </Station>
+    <section className="interests" aria-labelledby="interests-title">
+      {items.map((item, index) => {
+        const position = fieldPositions[item.id].toLowerCase();
+        return (
+          <Station key={item.id} station={`interest:${item.id}`} as="div" className="station--interest">
+            <Panel label={index === 0 ? interests.label : undefined}>
+              {index === 0 ? (
+                <h2 id="interests-title" className="display">
+                  <Lines lines={interests.headline} />
+                </h2>
+              ) : null}
+              <article className="interest" aria-labelledby={`interest-${item.id}`}>
+                <p className="interest__position">
+                  <span>{item.number}</span> Fielding at {position}
+                </p>
+                <h3 id={`interest-${item.id}`} className="interest__title">
+                  {item.label}
+                </h3>
+                {item.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {"callout" in item && item.callout ? (
+                  <ul className="callout">
+                    {item.callout.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {"note" in item && item.note ? <p className="aside-note">{item.note}</p> : null}
+              </article>
+            </Panel>
+          </Station>
+        );
+      })}
+    </section>
   );
 }
 

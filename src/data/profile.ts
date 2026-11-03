@@ -104,9 +104,9 @@ export const projectKindLabels: Record<ProjectKind, string> = {
 export const site = {
   brand: "ASHWIN.TOP",
   name: "Ashwin Sheoran",
-  title: "Ashwin Sheoran · A personal collection",
+  title: "Ashwin Sheoran · Live from ashwin.top",
   description:
-    "Ashwin Sheoran: ex-software engineer at NAB, IIIT Delhi CSAM graduate, MBA student at XLRI Delhi-NCR, game builder and cricket obsessive. Walk through the collection.",
+    "Ashwin Sheoran: ex-software engineer at NAB, IIIT Delhi CSAM graduate, MBA student at XLRI Delhi-NCR, game builder and cricket obsessive. Live, under the floodlights.",
 } as const;
 
 export const navigation = [
@@ -118,7 +118,7 @@ export const navigation = [
 ] as const satisfies readonly NavItem[];
 
 export const hero = {
-  kicker: "A PERSONAL COLLECTION · OPEN DAILY",
+  kicker: "NOW BATTING",
   name: "Ashwin Sheoran",
   roles: [
     "Ex-software engineer.",
@@ -133,7 +133,7 @@ export const hero = {
     { label: "Business Management", value: "XLRI Delhi-NCR" },
     { label: "Currently exploring", value: "Product × Media × Management" },
   ],
-  cta: "Begin the tour",
+  cta: "Start the innings",
   ticker: [
     "SYSTEM ONLINE",
     "10 TABS ACTIVE",
@@ -144,7 +144,7 @@ export const hero = {
 } as const;
 
 export const about = {
-  label: "GALLERY 01 · THE MAIN PLOT",
+  label: "PLAYER PROFILE · THE MAIN PLOT",
   headline: [
     "I started with code.",
     "Then I got curious about everything around it.",
@@ -168,7 +168,7 @@ export const about = {
 } as const;
 
 export const interests = {
-  label: "GALLERY 02 · OPEN TABS",
+  label: "FIELD PLACEMENT · OPEN TABS",
   headline: [
     "I do not have one passion.",
     "I have a resource-allocation problem.",
@@ -236,7 +236,7 @@ export const interests = {
 } as const;
 
 export const statement = {
-  label: "GALLERY 03 · CURATOR'S STATEMENT",
+  label: "PITCH MAP · THE STATEMENT",
   beauty: {
     title: "The required beauty question",
     headline: ["No grand philosophy.", "Just good execution."],
@@ -260,7 +260,7 @@ export const statement = {
 } as const;
 
 export const facts = {
-  label: "VISITOR INFORMATION",
+  label: "PLAYER INFO · ON THE BOARDS",
   headline: "Unsolicited information.",
   items: [
     { label: "From", value: "Delhi" },
@@ -284,7 +284,7 @@ export const facts = {
 } as const;
 
 export const journey = {
-  label: "GALLERY 04 · THE JOURNEY",
+  label: "INNINGS PROGRESSION · THE JOURNEY",
   headline: ["Four releases shipped.", "The fifth is installing."],
   entries: [
     {
@@ -330,7 +330,7 @@ export const journey = {
 } as const;
 
 export const sideQuests = {
-  label: "GALLERY 05 · SIDE QUESTS",
+  label: "IN THE DUGOUT · SIDE QUESTS",
   headline: "The side quests usually explain the main character better.",
   entries: [
     {
@@ -381,7 +381,7 @@ export const sideQuests = {
 } as const;
 
 export const strengths = {
-  label: "GALLERY 06 · CHARACTER BUILD",
+  label: "PLAYER RATINGS · CHARACTER BUILD",
   headline: [
     "Some skills were installed.",
     "Others were learned the hard way.",
@@ -427,7 +427,7 @@ export const strengths = {
 } as const;
 
 export const knownIssues = {
-  label: "CONSERVATION REPORT · KNOWN ISSUES",
+  label: "THIRD UMPIRE REVIEW · KNOWN ISSUES",
   headline: ["The current version is stable.", "Not bug-free."],
   items: [
     {
@@ -507,10 +507,10 @@ export const projects = [
 ] as const satisfies readonly Project[];
 
 export const projectsSection = {
-  label: "GALLERY 07 · THE COLLECTION",
+  label: "NOW SHOWING · THINGS I BUILT",
   headline: ["Things I built", "that you can actually play."],
   intro:
-    "Each exhibit is a working project. Walk up to one, then press play. The games open on their own pages.",
+    "Each one is a working game, set up on the outfield. Press play and it opens on its own page.",
   playLabel: "PLAY GAME",
   openLabel: "OPEN APP",
 } as const;
@@ -521,7 +521,7 @@ export const contact = {
 } as const;
 
 export const closing = {
-  label: "EXIT · THROUGH THE GIFT SHOP",
+  label: "POST-MATCH PRESENTATION",
   statement: ["No grand conclusion.", "The next tab is already loading."],
   identity: ["Ashwin Sheoran", "XLRI Delhi-NCR", "Business Management 2026–28"],
   actions: {

@@ -31,7 +31,7 @@ async function open(page: Page, query = "?static") {
 }
 
 test.describe("content and navigation", () => {
-  test("renders every gallery with its key facts", async ({ page }) => {
+  test("renders every section with its key facts", async ({ page }) => {
     const errors = trackErrors(page);
     await open(page);
     for (const id of ["home", "about", "experience", "projects", "contact"]) {
@@ -39,6 +39,7 @@ test.describe("content and navigation", () => {
     }
     for (const text of [
       "I started with code.",
+      "Fielding at cover",
       "22 months",
       "Junior Executive Member",
       "Ranked 1st, then Teaching Assistant",
@@ -122,7 +123,7 @@ test.describe("mobile", () => {
 });
 
 test.describe("rendering modes", () => {
-  test("static fallback shows the still gallery", async ({ page }) => {
+  test("static fallback shows still frames of the stadium", async ({ page }) => {
     await open(page, "?static");
     await expect(page.locator("html")).toHaveAttribute("data-renderer", "static");
     await expect(page.locator(".static-stage")).toBeAttached();
@@ -135,7 +136,7 @@ test.describe("rendering modes", () => {
     await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   });
 
-  test("the 3D gallery mounts when WebGL is available", async ({ page, browserName }) => {
+  test("the 3D stadium mounts when WebGL is available", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Headless WebKit has no reliable WebGL 2 on CI");
     test.slow();
     const errors = trackErrors(page);

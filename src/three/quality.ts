@@ -3,67 +3,49 @@ import type { QualityTier } from "../lib/store";
 export interface QualitySettings {
   readonly tier: QualityTier;
   readonly dpr: [number, number];
-  /** Planar floor reflections (an extra scene render), or false for env-only reflections. */
-  readonly reflector: false | { resolution: number; blur: [number, number] };
   readonly shadowMapSize: number;
   readonly postprocessing: boolean;
   readonly ambientOcclusion: boolean;
   readonly bloom: boolean;
-  /** Real refraction for glass. Off means glass falls back to a cheaper transparent shader. */
-  readonly transmission: boolean;
-  readonly lightShafts: boolean;
-  readonly dust: boolean;
+  /** Volumetric cones under the floodlights. Fill-rate heavy, so off on phones. */
+  readonly beams: boolean;
   readonly environmentResolution: number;
   readonly textureScale: number;
-  /** How far ahead and behind the camera exhibits stay mounted in the render list. */
-  readonly drawDistance: number;
 }
 
 export const qualityPresets: Record<QualityTier, QualitySettings> = {
   high: {
     tier: "high",
     dpr: [1, 1.75],
-    reflector: { resolution: 1024, blur: [400, 120] },
     shadowMapSize: 2048,
     postprocessing: true,
     ambientOcclusion: true,
     bloom: true,
-    transmission: true,
-    lightShafts: true,
-    dust: true,
+    beams: true,
     environmentResolution: 256,
     textureScale: 1,
-    drawDistance: 46,
   },
   medium: {
     tier: "medium",
     dpr: [1, 1.35],
-    reflector: { resolution: 512, blur: [300, 90] },
     shadowMapSize: 1024,
     postprocessing: true,
     ambientOcclusion: false,
     bloom: true,
-    transmission: true,
-    lightShafts: true,
-    dust: true,
+    beams: true,
     environmentResolution: 256,
     textureScale: 1,
-    drawDistance: 40,
   },
   low: {
     tier: "low",
     dpr: [1, 1.5],
-    reflector: false,
     shadowMapSize: 1024,
     postprocessing: false,
     ambientOcclusion: false,
     bloom: false,
-    transmission: false,
-    lightShafts: true,
-    dust: false,
+    beams: false,
     environmentResolution: 128,
     textureScale: 0.5,
-    drawDistance: 34,
   },
 };
 

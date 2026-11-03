@@ -25,7 +25,7 @@ import { clamp01, easeInOut } from "../helpers";
 import { useMaterials } from "../materials";
 import { focus } from "../rigState";
 import { paintTexture, seeded } from "../textures";
-import { Die, pawnGeometry } from "../stations/Interests";
+import { Die, pawnGeometry } from "../sets/gamePieces";
 
 /*
  * The board is rebuilt from the game's own board graph (91 spaces, 116 paths),
@@ -153,7 +153,7 @@ function boardTexture(scale: number): Texture {
     g.textAlign = "center";
     g.textBaseline = "middle";
     for (const [label, x, y, size] of REGIONS) {
-      g.font = `600 ${size * w}px "Newsreader Variable", Georgia, serif`;
+      g.font = `600 ${size * w}px Georgia, "Times New Roman", serif`;
       g.fillText(label, x * w, y * h);
     }
     // Title cartouche in the centre of the board.
@@ -165,7 +165,7 @@ function boardTexture(scale: number): Texture {
     g.lineWidth = 3 * scale;
     g.strokeRect(cx - 0.058 * w, cy - 0.05 * h, 0.116 * w, 0.1 * h);
     g.fillStyle = "#f3e4b8";
-    g.font = `600 ${0.0115 * w}px "Newsreader Variable", Georgia, serif`;
+    g.font = `600 ${0.0115 * w}px Georgia, "Times New Roman", serif`;
     ["THE BATTLE", "FOR THE", "WIZARDING", "WORLD"].forEach((line, index) => {
       g.fillText(line, cx, cy - 0.03 * h + index * 0.021 * h);
     });
@@ -186,7 +186,7 @@ type Phase = "roll" | "move" | "pause" | "won" | "reset";
 const UP = new Vector3(0, 1, 0);
 const spinAroundY = new Quaternion();
 
-export function WizardingBoard({ z }: { z: number }) {
+export function WizardingBoard({ x, z }: { x: number; z: number }) {
   const m = useMaterials();
   const harry = useRef<Group>(null);
   const voldemort = useRef<Group>(null);
@@ -329,7 +329,7 @@ export function WizardingBoard({ z }: { z: number }) {
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.1);
     const g = game.current;
-    const active = Math.abs(focus.z - z) < 9 && !rig.reducedMotion;
+    const active = Math.hypot(focus.x - x, focus.z - z) < 9 && !rig.reducedMotion;
     const place = (piece: Group | null, nodeId: number, hop = 0, from?: number, k = 1) => {
       if (!piece) return;
       const [tx, ty] = toBoard(nodes[nodeId]);

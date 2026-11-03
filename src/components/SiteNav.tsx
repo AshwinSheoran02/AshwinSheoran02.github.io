@@ -21,11 +21,13 @@ function groupedProjects() {
     .filter((group) => group.items.length > 0);
 }
 
+/** A cricket ball, seam and all. */
 function Mark() {
   return (
     <svg className="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3 21 19H3Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M12 12 23 9.5M12 12l11 1M12 12l11 5" stroke="#c98b3b" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="9.5" fill="#d3261d" />
+      <path d="M7.2 4.6c3.2 3.6 3.2 11.2 0 14.8M16.8 4.6c-3.2 3.6-3.2 11.2 0 14.8" fill="none" stroke="#fff3e0" strokeWidth="1.2" strokeDasharray="1.4 1.3" />
+      <circle cx="9" cy="8.5" r="2.4" fill="#fff" opacity="0.18" />
     </svg>
   );
 }
@@ -154,6 +156,9 @@ export function SiteNav() {
         <a className="brand" href="#home" onClick={go("home")}>
           <Mark />
           <span>{site.brand}</span>
+          <span className="live-badge" aria-hidden="true">
+            <i /> Live
+          </span>
         </a>
 
         <ul className="nav-links">

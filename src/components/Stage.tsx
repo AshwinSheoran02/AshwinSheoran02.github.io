@@ -5,11 +5,15 @@ import { ui, useUi, type QualityTier } from "../lib/store";
 
 const Experience = lazy(() => import("../three/Experience"));
 
-/** Stills rendered from the 3D gallery, used when WebGL is unavailable. */
+/** Stills rendered from the 3D stadium, used when WebGL is unavailable. */
 const STILLS = new Set([
   "home",
   "about",
-  "interests",
+  "interest-cricket",
+  "interest-markets",
+  "interest-gaming",
+  "interest-vibe-coding",
+  "interest-photography",
   "statement",
   "facts",
   "journey-0",
@@ -74,7 +78,7 @@ export function Stage({ tier }: { tier: QualityTier }) {
           <Experience
             initialTier={tier}
             onFailure={(reason) => {
-              console.warn(`3D gallery unavailable (${reason}); showing the still gallery instead.`);
+              console.warn(`3D stadium unavailable (${reason}); showing still frames instead.`);
               ui.set({ renderMode: "static" });
             }}
           />

@@ -1,32 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import {
-  Color,
-  LineBasicMaterial,
-  DoubleSide,
-  MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
-  Vector2,
   type Material,
   type Texture,
 } from "three";
 import type { QualitySettings } from "./quality";
-import {
-  feltTexture,
-  noiseTexture,
-  plasterTexture,
-  skyTexture,
-  travertineTexture,
-  vistaTexture,
-  walnutTexture,
-} from "./textures";
-
-/** Where the horizon sits in the exit vista, as a fraction from the top. */
-export const VISTA_HORIZON = 0.56;
+import { feltTexture, walnutTexture } from "./textures";
 
 /*
- * Shared physically based materials. Created once per quality tier and
- * disposed with their textures when the scene unmounts.
+ * Shared physically based materials for the set-pieces and the game exhibits.
+ * Created once per quality tier and disposed with their textures when the scene unmounts.
  */
 function createMaterials(quality: QualitySettings) {
   const s = quality.textureScale;
@@ -36,83 +20,13 @@ function createMaterials(quality: QualitySettings) {
     return texture;
   };
 
-  const plasterMap = keep(plasterTexture(s));
-  plasterMap.repeat.set(1, 1);
-  const travertineMap = keep(travertineTexture(s));
   const walnutMap = keep(walnutTexture(s));
   walnutMap.repeat.set(1, 1);
   const feltMap = keep(feltTexture(s));
   feltMap.repeat.set(4, 4);
-  const fineNoise = keep(noiseTexture(5, 256));
-  fineNoise.repeat.set(6, 6);
-  const sky = keep(skyTexture());
-  const vista = keep(vistaTexture(VISTA_HORIZON));
-
-  const glass = (options: {
-    color?: string;
-    attenuation?: string;
-    thickness?: number;
-    roughness?: number;
-    dispersion?: number;
-  }) => {
-    if (quality.transmission) {
-      return new MeshPhysicalMaterial({
-        color: options.color ?? "#ffffff",
-        metalness: 0,
-        roughness: options.roughness ?? 0.03,
-        transmission: 1,
-        thickness: options.thickness ?? 0.4,
-        ior: 1.52,
-        attenuationColor: new Color(options.attenuation ?? "#e8f2ee"),
-        attenuationDistance: 1.6,
-        dispersion: options.dispersion ?? 0,
-        specularIntensity: 1,
-        envMapIntensity: 1.2,
-        clearcoat: 0.2,
-      });
-    }
-    // Without refraction, tinted glass becomes polished obsidian: opaque, so the light
-    // shafts (also transparent) can never sort in front of it and wash it out.
-    const tinted = (options.thickness ?? 0.4) > 0.8;
-    if (tinted) {
-      return new MeshPhysicalMaterial({
-        color: "#2c3331",
-        metalness: 0,
-        roughness: 0.06,
-        envMapIntensity: 1.6,
-        clearcoat: 1,
-        clearcoatRoughness: 0.02,
-        specularIntensity: 1,
-      });
-    }
-    return new MeshPhysicalMaterial({
-      color: options.attenuation ?? "#dfe8e4",
-      metalness: 0,
-      roughness: 0.04,
-      transparent: true,
-      opacity: 0.28,
-      depthWrite: false,
-      envMapIntensity: 1.8,
-      clearcoat: 1,
-      clearcoatRoughness: 0.02,
-    });
-  };
 
   const materials = {
-    plaster: new MeshStandardMaterial({ color: "#efe8dc", map: plasterMap, roughness: 0.93 }),
-    plasterShade: new MeshStandardMaterial({ color: "#d9cfbf", map: plasterMap, roughness: 0.95 }),
-    ceiling: new MeshStandardMaterial({ color: "#f3eee6", roughness: 0.97 }),
-    timber: new MeshPhysicalMaterial({ map: walnutMap, color: "#d9b48c", roughness: 0.6, clearcoat: 0.2 }),
     bronze: new MeshStandardMaterial({ color: "#4a3a2a", metalness: 0.85, roughness: 0.42 }),
-    travertine: new MeshPhysicalMaterial({
-      color: "#f2e8d6",
-      map: travertineMap,
-      roughness: 0.62,
-      bumpMap: fineNoise,
-      bumpScale: 0.6,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.5,
-    }),
     brass: new MeshPhysicalMaterial({
       color: "#d0a65a",
       metalness: 1,
@@ -129,9 +43,10 @@ function createMaterials(quality: QualitySettings) {
       anisotropy: 0.8,
       anisotropyRotation: 0,
     }),
+    // Broadcast black: glossy, so the floodlights streak across it.
     lacquer: new MeshPhysicalMaterial({
-      color: "#151413",
-      roughness: 0.38,
+      color: "#0e1118",
+      roughness: 0.34,
       clearcoat: 1,
       clearcoatRoughness: 0.05,
     }),
@@ -163,35 +78,18 @@ function createMaterials(quality: QualitySettings) {
     }),
     felt: new MeshStandardMaterial({ color: "#1f5480", map: feltMap, roughness: 0.96 }),
     leatherBlack: new MeshStandardMaterial({ color: "#0d0b0a", roughness: 0.75 }),
-    glass: glass({}),
-    smokedGlass: glass({ color: "#7c8481", attenuation: "#2e3533", thickness: 1.4 }),
-    prismGlass: glass({ roughness: 0.0, thickness: 1.2, dispersion: 5 }),
-    // Thin sheet glass for cases and tubes: reflective, barely there, never refractive.
-    caseGlass: new MeshPhysicalMaterial({
-      color: "#eef4f1",
+    glass: new MeshPhysicalMaterial({
+      color: "#dfe8e4",
       metalness: 0,
-      roughness: 0.02,
+      roughness: 0.04,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.3,
       depthWrite: false,
-      side: DoubleSide,
-      envMapIntensity: 1.1,
+      envMapIntensity: 1.8,
       clearcoat: 1,
       clearcoatRoughness: 0.02,
     }),
-    sky: new MeshBasicMaterial({ map: sky, color: new Color(1.9, 1.75, 1.5), fog: false }),
-    daylight: new MeshBasicMaterial({ color: new Color(2.6, 2.35, 2.0), fog: false }),
-    // Slightly over 1 so the garden outside reads as brighter than the hall, and the sky blooms.
-    vista: new MeshBasicMaterial({ map: vista, color: new Color(1.32, 1.26, 1.16), fog: false }),
-    sunDisc: new MeshBasicMaterial({ color: new Color(7, 6, 4.6), fog: false }),
-    skylight: new MeshBasicMaterial({ color: new Color(1.25, 1.22, 1.17), side: DoubleSide, fog: false }),
-    shadowCatcher: new MeshBasicMaterial({ color: "#000", transparent: true, opacity: 0 }),
-    brassLine: new LineBasicMaterial({ color: "#c9a04f" }),
   };
-
-  // Anisotropic brushing reads best with a gentle tangent-space direction.
-  materials.brass.anisotropyMap = null;
-  materials.travertine.normalScale = new Vector2(1, 1);
 
   const dispose = () => {
     Object.values(materials).forEach((material: Material) => material.dispose());

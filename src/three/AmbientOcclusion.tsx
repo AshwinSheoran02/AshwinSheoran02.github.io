@@ -18,7 +18,7 @@ export function AmbientOcclusion() {
       intensity: 2.2,
       halfRes: true,
       depthAwareUpsampling: true,
-      color: new Color("#3a2f24"),
+      color: new Color("#05070c"),
     });
     pass.setQualityMode("Medium");
   }, [pass]);

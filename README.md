@@ -1,9 +1,10 @@
 # ashwin.top
 
-Ashwin Sheoran's personal site: a daylit 3D gallery you walk through by
-scrolling. Each part of the page is a station in one long hall, with real-time
-reflections, low golden-hour sun through tall windows, and exhibits for the
-things Ashwin has built and cares about.
+Ashwin Sheoran's personal site: a night match under the floodlights. The site
+opens high above a full stadium as the floodlights come on, flies down over the
+crowd and into the giant screen, and then a spidercam carries you around the
+ground as you scroll. Every part of the story has its own spot on the field,
+and the page itself is the broadcast graphics laid over the top.
 
 Built with React, TypeScript, Vite, three.js, React Three Fiber, Drei and
 pmndrs postprocessing. It is a static site on GitHub Pages: no backend, no
@@ -31,6 +32,25 @@ Useful URL switches while developing:
 | `?capture` | Camera cuts straight to stations, intro skipped (for screenshots) |
 | `?capture=bare` | As above with the page hidden, used to render the fallback stills |
 
+## The tour
+
+| Section | Where the camera goes | What is there |
+| --- | --- | --- |
+| Home | The giant screen at the north end | Opening flight, floodlights switching on, name on the screen |
+| About | Behind the striker's stumps | Stumps with LED bails, a bat, a delivery on a loop |
+| Interests | Spidercam over the square, then each fielding position | Field-placement graphics, then candlesticks (cover), dice (mid-wicket), keycaps (long-off), a broadcast camera (fine leg) |
+| Statement | Above the bowler's end | Pitch map, most balls on a good length |
+| Facts | The boundary boards | The facts scroll on the LED boards |
+| Journey | Along the off-side outfield | A broadcast "Manhattan": one bar per release |
+| Side quests | The home dugout | One artefact per side quest on the bench |
+| Strengths | The giant screen | Player ratings |
+| Known issues | Behind the bowler, Hawk-Eye angle | Three ball-tracking paths, one per bug. Not out |
+| Projects | Lit stages on the south outfield | The pool table and the wizarding board, each with PLAY GAME |
+| Contact | High over the south stand | Thanks for watching, fireworks, CV and LinkedIn |
+
+The score bug in the corner counts the tour in overs: one station a ball, six
+balls an over.
+
 ## How the page and the scene fit together
 
 - `src/data/profile.ts` holds every word on the site. Edit content here.
@@ -38,43 +58,51 @@ Useful URL switches while developing:
   a DOM element with a matching `data-station` attribute.
 - `src/hooks/useStationTracking.ts` turns the native scroll position into a
   continuous station value (with a short hold at each stop while you read).
-  Scrolling is never hijacked.
+  Scrolling is never hijacked, and nothing is hidden behind a click.
 - `src/three/CameraRig.tsx` flies the camera along a centripetal Catmull-Rom
   path through the station keyframes in `src/three/layout.ts`, shifting the
-  frame so exhibits sit beside the text instead of under it.
-- `src/components/` is the readable layer: semantic HTML sections styled as
-  museum wall labels, the global navigation and the loader. All content lives
-  in the DOM, so it works for keyboards, screen readers and search engines even
-  if the 3D scene never starts.
-- `src/three/` is the scene, loaded lazily after the page content renders.
+  frame so the subject sits beside the text instead of under it. It also flies
+  the opening shot; any scroll, key or tap during it fast-forwards it.
+- `src/components/` is the readable layer: semantic HTML styled as broadcast
+  graphics, the navigation, the score bug and the loader. All content lives in
+  the DOM, so it works for keyboards, screen readers and search engines even if
+  the 3D scene never starts.
+- `src/three/` is the scene, loaded lazily after the page content renders:
+  `stadium/` is the ground, stands, floodlights, screen and boards; `sets/` is
+  what belongs to each section; `exhibits/` holds the two game exhibits.
 
 ### Scene notes
 
-- Lighting: a low directional sun casts window-shaped shadows (its shadow
-  frustum follows the camera and snaps to texels so it does not shimmer), plus
-  two re-aimable spotlights that move between exhibits so the light count, and
-  therefore the shaders, never change mid-tour.
-- Reflections: a planar reflector floor with depth-aware blur, and an
-  environment map baked from emissive panels laid out like the hall, so glass,
-  brass, chrome and lacquer reflect windows and walls that match the room.
-- Glass uses physical transmission (with dispersion on the prism). Lower tiers
-  swap it for a cheaper translucent shader.
+- Lighting: four floodlight towers. Two act as keys and two as fills; on the
+  high tier both keys cast shadows, giving things on the field the double
+  shadows of a night match. Their
+  shadow frustums follow the camera and snap to texels so edges do not crawl.
+- Reflections: an environment map baked from a small model of the bowl (light
+  banks, the roof's light ring, the screen, a green floor), so the ball, the
+  pool balls, chrome and lacquer pick up believable highlights.
+- The crowd is one instanced mesh of tens of thousands of people, animated in
+  the vertex shader. Pressing DO NOT CLICK sends a Mexican wave round the
+  ground and sets off a light show.
+- The giant screen is a canvas per section drawn in broadcast style, wiped in
+  through an LED-pixel shader. The perimeter boards and the fascia ribbon
+  scroll messages taken from the site's own content.
 - Post-processing: ambient occlusion (high tier only, loaded on demand), bloom,
-  AgX tone mapping, vignette, grain and SMAA.
-- Exhibits far from the camera are hidden so only nearby ones cost anything.
+  ACES tone mapping, vignette, grain and SMAA.
+- Set-pieces far from the camera's focus are hidden, so only nearby ones cost
+  anything to draw.
 
 ### Quality tiers and fallbacks
 
 `src/three/quality.ts` picks a starting tier from the device (touch or small
 screens, Save-Data and software renderers get `low`), and a runtime performance
 monitor steps down if the frame rate drops. Device pixel ratio is capped per
-tier.
+tier; phones get a thinner crowd, no light beams and no post-processing.
 
 - No WebGL 2, a lost GPU context or a scene error: the page swaps to
   pre-rendered stills of each station (`public/stills/`), cross-fading as you
   scroll. All content and links keep working.
-- `prefers-reduced-motion`: no intro, no idle animation, no parallax; the
-  camera cuts between stations instead of flying.
+- `prefers-reduced-motion`: no opening flight, no idle animation, no parallax,
+  no wave or fireworks; the camera cuts between stations instead of flying.
 
 ## Add a project
 
@@ -90,21 +118,20 @@ Append an entry to `projects` in `src/data/profile.ts`:
   url: "https://ashwin.top/my-app/",
   summary: "One or two sentences.",
   details: ["A fact", "Another fact"],
-  exhibit: "display-case",   // generic lightbox exhibit
-  cover: "projects/my-app.webp", // optional image in public/
+  exhibit: "display-case",   // a generic lit totem with the title
 }
 ```
 
-The navigation menu, the projects section, the camera path and the hall
-length all extend automatically. An "Apps" group appears in the menu once the
-first app exists. The two current games have bespoke exhibits
+The navigation menu, the projects section, the camera path, the stages on the
+outfield and the giant screen all pick it up. An "Apps" group appears in the
+menu once the first app exists. The two current games have bespoke exhibits
 (`src/three/exhibits/`): the pool table runs a small break-shot simulation and
 the wizarding board is rebuilt from the game's own board graph.
 
 ## Regenerate the fallback stills
 
 With `npm run build && npm run preview` running, open
-`/?capture=bare&quality=high`, call `window.__gallery.go("<station id>")` for
+`/?capture=bare&quality=medium`, call `window.__gallery.go("<station id>")` for
 each id in `src/data/stations.ts`, screenshot at 1600×1000 and save as WebP in
 `public/stills/` (names use `-` instead of `:`, for example
 `project-pool-game.webp`). `public/og-image.jpg` is the home still cropped to
@@ -126,8 +153,7 @@ checks the build output for this).
 
 - `public/Ashwin-Sheoran-CV.pdf` is the downloadable CV (source:
   `AshwinSheoranCVFilled.pdf`).
-- `BG_Video.mp4` is the original hero video from the previous design, kept as a
-  source file; the new site does not use it.
-- Fonts (Bricolage Grotesque, Newsreader, IBM Plex Mono) are bundled through
-  Fontsource; nothing is fetched from font CDNs. The extruded 3D lettering uses
-  a glyph subset generated by `scripts/build-3d-font.mjs`.
+- `BG_Video.mp4` is the original hero video from an earlier design, kept as a
+  source file; the site does not use it.
+- Fonts (Barlow and Barlow Condensed) are bundled through Fontsource; nothing
+  is fetched from font CDNs.

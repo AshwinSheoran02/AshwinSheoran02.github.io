@@ -25,7 +25,7 @@ function ProjectExhibit({ project, index, total }: { project: Project; index: nu
         ) : null}
         <div className="exhibit-label">
           <p className="exhibit-label__number">
-            Exhibit {String(index + 1).padStart(2, "0")} of {String(total).padStart(2, "0")} · {project.kind === "game" ? "Game" : "App"}
+            {project.kind === "game" ? "Game" : "App"} {String(index + 1).padStart(2, "0")} of {String(total).padStart(2, "0")}
           </p>
           <h3 id={`project-${project.id}-title`} className="exhibit-label__title">
             {project.title}

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import {
   CatmullRomCurve3,
   Color,
+  CylinderGeometry,
+  DoubleSide,
   LatheGeometry,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -15,15 +17,13 @@ import {
 } from "three";
 import { sideQuests, type SideQuestId } from "../../data/profile";
 import { rig, ui } from "../../lib/store";
-import { InstancedBoxes, damp, type BoxSpec } from "../helpers";
-import { Label, Station } from "../common";
-import { Z } from "../layout";
+import { Label, Near } from "../common";
+import { damp, InstancedBoxes, type BoxSpec } from "../helpers";
+import { DUGOUT } from "../layout";
 import { useMaterials, type MaterialLibrary } from "../materials";
-import type { QualitySettings } from "../quality";
-import { codeScreenTexture, scoreboardTexture } from "../textures";
+import { codeScreenTexture, paintTexture, scoreboardTexture } from "../textures";
 
-const CASE = { x: 1.2, length: 5.8, depth: 0.82, baseHeight: 0.86, glassHeight: 0.62 };
-
+/* The side quests, laid out on the bench of the home dugout. */
 function useArtifactResources() {
   const resources = useMemo(() => {
     const scoreboard = scoreboardTexture();
@@ -194,68 +194,102 @@ function Riser({ id, children }: { id: SideQuestId; children: ReactNode }) {
   return <group ref={group}>{children}</group>;
 }
 
-export function SideQuests({ quality }: { quality: QualitySettings }) {
+
+const LENGTH = 8.4;
+const SEAT_PITCH = LENGTH / (sideQuests.entries.length + 0.4);
+
+export function Dugout() {
   const m = useMaterials();
   const r = useArtifactResources();
-  const top = CASE.baseHeight;
+  const parts = useMemo(() => {
+    const sign = paintTexture(
+      1024,
+      160,
+      (g, w, h) => {
+        g.fillStyle = "#0b1638";
+        g.fillRect(0, 0, w, h);
+        g.fillStyle = "#ffd400";
+        g.fillRect(0, h - 14, w, 14);
+        g.fillStyle = "#ffffff";
+        g.font = `italic 900 ${h * 0.62}px "Barlow Condensed", sans-serif`;
+        g.fillText("HOME DUGOUT", 36, h * 0.72);
+        g.fillStyle = "#ffd400";
+        g.font = `800 ${h * 0.34}px "Barlow Condensed", sans-serif`;
+        g.textAlign = "right";
+        g.fillText("SIDE QUESTS · 6", w - 36, h * 0.68);
+      },
+      { clamp: true },
+    );
+    const signMaterial = new MeshBasicMaterial({ map: sign, color: new Color(1.3, 1.3, 1.3) });
+    const canopy = new MeshPhysicalMaterial({
+      color: "#c9dcff",
+      roughness: 0.06,
+      transparent: true,
+      opacity: 0.22,
+      side: DoubleSide,
+      depthWrite: false,
+      clearcoat: 1,
+      envMapIntensity: 1.6,
+    });
+    const canopyGeometry = new CylinderGeometry(1.75, 1.75, LENGTH, 40, 1, true, 0, Math.PI / 2);
+    canopyGeometry.rotateZ(Math.PI / 2);
+    const turf = new MeshStandardMaterial({ color: "#2c6a2a", roughness: 0.95 });
+    const seat = new MeshPhysicalMaterial({ color: "#1d5bd6", roughness: 0.35, clearcoat: 0.7 });
+    const strip = new MeshBasicMaterial({ color: new Color(0.4, 1.6, 2.4) });
+    return { sign, signMaterial, canopy, canopyGeometry, turf, seat, strip };
+  }, []);
+  useEffect(
+    () => () => {
+      Object.values(parts).forEach((value) => value.dispose());
+    },
+    [parts],
+  );
   const frame = useMemo<BoxSpec[]>(() => {
-    const t = 0.018;
-    const { length: L, depth: D, glassHeight: H } = CASE;
-    const y0 = top;
     const boxes: BoxSpec[] = [];
-    for (const z of [-D / 2, D / 2]) {
-      for (const y of [y0, y0 + H]) boxes.push({ p: [CASE.x, y, Z.sideQuests + z], s: [L, t, t] });
-      for (const x of [-L / 2, L / 2]) boxes.push({ p: [CASE.x + x, y0 + H / 2, Z.sideQuests + z], s: [t, H, t] });
-    }
-    for (const x of [-L / 2, L / 2]) {
-      for (const y of [y0, y0 + H]) boxes.push({ p: [CASE.x + x, y, Z.sideQuests], s: [t, t, D] });
-    }
+    for (const x of [-LENGTH / 2, 0, LENGTH / 2]) boxes.push({ p: [x, 1.1, -1.05], s: [0.08, 2.2, 0.08] });
+    boxes.push({ p: [0, 2.2, -1.05], s: [LENGTH, 0.08, 0.08] });
     return boxes;
-  }, [top]);
+  }, []);
 
-  const spacing = CASE.length / sideQuests.entries.length;
   return (
-    <Station z={Z.sideQuests} reach={quality.drawDistance}>
-      <RoundedBox
-        args={[CASE.length, top, CASE.depth]}
-        radius={0.02}
-        position={[CASE.x, top / 2, Z.sideQuests]}
-        material={m.walnutMatte}
-        castShadow
-        receiveShadow
-      />
-      <mesh position={[CASE.x, top + CASE.glassHeight / 2, Z.sideQuests]} material={m.caseGlass} renderOrder={2}>
-        <boxGeometry args={[CASE.length - 0.02, CASE.glassHeight - 0.02, CASE.depth - 0.02]} />
-      </mesh>
-      <InstancedBoxes boxes={frame} material={m.bronze} castShadow />
-      {sideQuests.entries.map((quest, index) => {
-        const x = CASE.x - CASE.length / 2 + spacing * (index + 0.5);
-        return (
-          <group
-            key={quest.id}
-            position={[x, top + 0.012, Z.sideQuests]}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              ui.set({ sideQuest: quest.id });
-            }}
-            onPointerOut={() => ui.set({ sideQuest: null })}
-          >
-            <mesh position={[0, 0, 0]} material={m.ceramic} receiveShadow>
-              <cylinderGeometry args={[0.27, 0.27, 0.024, 48]} />
-            </mesh>
-            <group position={[0, 0.012, 0]}>
-              <Riser id={quest.id}>
-                <group scale={1.45}>
+    <Near x={DUGOUT.x} z={DUGOUT.z} reach={26}>
+      <group position={[DUGOUT.x, 0, DUGOUT.z]} rotation-y={DUGOUT.rotationY}>
+        <mesh material={parts.turf} position={[0, 0.02, -0.2]} receiveShadow>
+          <boxGeometry args={[LENGTH + 0.4, 0.04, 2.6]} />
+        </mesh>
+        <mesh material={m.lacquer} position={[0, 1.15, -1.2]} receiveShadow>
+          <boxGeometry args={[LENGTH + 0.4, 2.3, 0.12]} />
+        </mesh>
+        <mesh material={parts.signMaterial} position={[0, 1.78, -1.13]}>
+          <planeGeometry args={[4.6, 0.72]} />
+        </mesh>
+        <mesh material={parts.strip} position={[0, 0.06, 1.08]}>
+          <boxGeometry args={[LENGTH + 0.4, 0.04, 0.04]} />
+        </mesh>
+        {/* Bench: a dark plinth with a row of bucket seats. */}
+        <RoundedBox args={[LENGTH, 0.42, 0.62]} radius={0.04} position={[0, 0.21, -0.72]} material={m.lacquer} castShadow receiveShadow />
+        {sideQuests.entries.map((quest, index) => {
+          const x = (index - (sideQuests.entries.length - 1) / 2) * SEAT_PITCH;
+          return (
+            <group key={quest.id} position={[x, 0.42, -0.72]}>
+              <RoundedBox args={[0.98, 0.08, 0.56]} radius={0.03} position={[0, 0.04, 0]} material={parts.seat} castShadow receiveShadow />
+              <RoundedBox args={[0.98, 0.62, 0.08]} radius={0.03} position={[0, 0.35, -0.28]} material={parts.seat} castShadow />
+              <group position={[0, 0.08, 0.02]} scale={2.6}>
+                <Riser id={quest.id}>
                   <Artifact id={quest.id} m={m} r={r} />
-                </group>
-              </Riser>
+                </Riser>
+              </group>
+              <group position={[0, -0.18, 0.32]}>
+                <Label size={0.11} color="#ffd400" anchorY="top">
+                  {String(index + 1).padStart(2, "0")}
+                </Label>
+              </group>
             </group>
-            <Label size={0.026} position={[0, -top * 0.42, CASE.depth / 2 + 0.003]} color="#efe2cc" letterSpacing={0.16}>
-              {`0${index + 1} · ${quest.artifact.toUpperCase()}`}
-            </Label>
-          </group>
-        );
-      })}
-    </Station>
+          );
+        })}
+        <InstancedBoxes boxes={frame} material={m.steel} castShadow />
+        <mesh geometry={parts.canopyGeometry} material={parts.canopy} position={[0, 0.5, -1.05]} renderOrder={8} />
+      </group>
+    </Near>
   );
 }

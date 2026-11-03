@@ -170,7 +170,7 @@ function staticBoxes(): { wood: BoxSpec[]; cushions: BoxSpec[] } {
   return { wood, cushions };
 }
 
-export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
+export function PoolTable({ exhibitId, x, z }: { exhibitId: string; x: number; z: number }) {
   const m = useMaterials();
   const ballGroup = useRef<(Group | null)[]>([]);
   const cue = useRef<Group>(null);
@@ -253,7 +253,7 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
     const dt = Math.min(delta, 1 / 30);
     const s = sim.current;
     const balls = s.balls;
-    const near = Math.abs(focus.z - z) < 6;
+    const near = Math.hypot(focus.x - x, focus.z - z) < 6;
     s.phaseTime += dt;
 
     const shotRequest = ui.get().breakShotAt;
@@ -439,8 +439,8 @@ export function PoolTable({ exhibitId, z }: { exhibitId: string; z: number }) {
           <planeGeometry args={[1.56, 0.32]} />
         </mesh>
         {[-0.6, 0.6].map((x) => (
-          <mesh key={x} position={[x, 3, 0]} material={m.bronze}>
-            <cylinderGeometry args={[0.008, 0.008, 6, 8]} />
+          <mesh key={x} position={[x, 0.78, 0]} material={m.bronze}>
+            <cylinderGeometry args={[0.008, 0.008, 1.56, 8]} />
           </mesh>
         ))}
       </group>

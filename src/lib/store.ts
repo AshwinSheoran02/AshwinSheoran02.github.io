@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from "react";
-import type { InterestId } from "../data/profile";
 
 type Listener = () => void;
 
@@ -47,7 +46,6 @@ export type QualityTier = "high" | "medium" | "low";
 
 export interface UiState {
   activeStation: string;
-  interest: InterestId;
   sideQuest: string | null;
   hoveredExhibit: string | null;
   renderMode: RenderMode;
@@ -62,7 +60,6 @@ export interface UiState {
 
 export const ui = createStore<UiState>({
   activeStation: "home",
-  interest: "cricket",
   sideQuest: null,
   hoveredExhibit: null,
   renderMode: "pending",

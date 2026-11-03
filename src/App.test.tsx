@@ -11,11 +11,12 @@ import {
   sideQuests,
   strengths,
 } from "./data/profile";
-import { stationOrder } from "./data/stations";
+import { fieldPositions } from "./data/field";
+import { captionFor, oversFor, stationOrder } from "./data/stations";
 import { ui } from "./lib/store";
 
 function renderApp() {
-  ui.set({ interest: "cricket", sideQuest: null, renderMode: "pending", sceneReady: false });
+  ui.set({ sideQuest: null, renderMode: "pending", sceneReady: false, introDone: false });
   return render(<App />);
 }
 
@@ -28,7 +29,7 @@ describe("ashwin.top", () => {
     }
   });
 
-  it("falls back to the still gallery when WebGL is unavailable", () => {
+  it("falls back to still frames of the stadium when WebGL is unavailable", () => {
     renderApp();
     expect(document.documentElement.dataset.renderer).toBe("static");
     expect(document.querySelector(".static-stage")).not.toBeNull();
@@ -102,19 +103,25 @@ describe("ashwin.top", () => {
     }
   });
 
-  it("switches interests with the keyboard like a tab list", async () => {
-    const user = userEvent.setup();
+  it("gives every interest its own scroll stop and fielding position, with nothing hidden behind a click", () => {
     renderApp();
-    const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(interests.items.length);
-    tabs[0].focus();
-    await user.keyboard("{ArrowRight}");
-    expect(screen.getByRole("tab", { name: /Markets/ })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tabpanel")).toHaveTextContent("No F&O heroics");
-    await user.keyboard("{End}");
-    expect(screen.getByRole("tab", { name: /Photography/ })).toHaveAttribute("aria-selected", "true");
-    await user.keyboard("{ArrowRight}");
-    expect(screen.getByRole("tab", { name: /Cricket/ })).toHaveAttribute("aria-selected", "true");
+    for (const item of interests.items) {
+      const station = document.querySelector<HTMLElement>(`[data-station="interest:${item.id}"]`)!;
+      expect(station).not.toBeNull();
+      expect(within(station).getByRole("heading", { level: 3, name: item.label })).toBeInTheDocument();
+      expect(station).toHaveTextContent(`Fielding at ${fieldPositions[item.id].toLowerCase()}`);
+      for (const paragraph of item.body) expect(within(station).getByText(paragraph)).toBeInTheDocument();
+    }
+    expect(screen.getByText("Equity markets. No F&O heroics.")).toBeInTheDocument();
+    expect(screen.queryAllByRole("tab")).toHaveLength(0);
+  });
+
+  it("counts the tour in overs, one station a ball", () => {
+    expect(oversFor("home")).toBe("0.1");
+    expect(oversFor(stationOrder[5])).toBe("0.6");
+    expect(oversFor(stationOrder[6])).toBe("1.1");
+    expect(captionFor("known-issues")).toBe("Third umpire review");
+    expect(captionFor("project:pool-game")).toBe("Now showing");
   });
 
   it("answers the button that says not to click it", async () => {

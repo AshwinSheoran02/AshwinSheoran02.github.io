@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUi } from "../lib/store";
 
-const LINES = ["Polishing the floor", "Hanging the exhibits", "Adjusting the sun", "Racking the balls", "Opening the doors"];
+const LINES = ["Rolling the pitch", "Painting the creases", "Filling the stands", "Warming up the floodlights", "Toss done, batting first"];
 
 /** Opening curtain. Purely visual: the page content underneath is already readable by assistive tech. */
 export function Loader() {
@@ -31,7 +31,9 @@ export function Loader() {
   return (
     <div className="loader" data-done={done} aria-hidden="true">
       <div className="loader__inner">
-        <p className="loader__brand">ASHWIN.TOP</p>
+        <p className="loader__brand">
+          ASHWIN.TOP <span>Live</span>
+        </p>
         <div className="loader__bar">
           <i />
         </div>

@@ -21,10 +21,13 @@ class SceneBoundary extends Component<{ onError: (reason: string) => void; child
 
 function waitForFonts(): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return Promise.resolve();
+  // The scoreboard and the perimeter boards are painted with the broadcast typeface.
   const loads = [
-    document.fonts.load('600 40px "Bricolage Grotesque Variable"'),
-    document.fonts.load('600 40px "Newsreader Variable"'),
-    document.fonts.load('500 20px "IBM Plex Mono"'),
+    document.fonts.load('800 40px "Barlow Condensed"'),
+    document.fonts.load('italic 800 40px "Barlow Condensed"'),
+    document.fonts.load('italic 900 40px "Barlow Condensed"'),
+    document.fonts.load('700 40px "Barlow Condensed"'),
+    document.fonts.load('600 40px "Barlow Condensed"'),
   ];
   const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2500));
   return Promise.race([Promise.all(loads).then(() => undefined), timeout]).catch(() => undefined);
@@ -106,7 +109,7 @@ export default function Experience({
           stencil: false,
           powerPreference: "high-performance",
         }}
-        camera={{ fov: 34, near: 0.08, far: 150, position: [0, 6, 22] }}
+        camera={{ fov: 34, near: 0.08, far: 2400, position: [-170, 210, 300] }}
         eventSource={document.body}
         eventPrefix="client"
         events={filteredEvents}

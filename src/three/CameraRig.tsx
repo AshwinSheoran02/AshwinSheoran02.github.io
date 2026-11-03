@@ -1,11 +1,9 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, MathUtils, Vector3, type PerspectiveCamera } from "three";
-import { interests } from "../data/profile";
-import { stationIndex } from "../data/stations";
 import { rig, ui } from "../lib/store";
 import { clamp01, damp, easeInOut, easeOutCubic } from "./helpers";
-import { interestFrame, keyframes, type Keyframe } from "./layout";
+import { INTRO_FROM, keyframes, type Keyframe } from "./layout";
 import { eye, focus, smoothed } from "./rigState";
 
 interface Pose {
@@ -14,25 +12,6 @@ interface Pose {
   fov: number;
   shiftX: number;
   shiftY: number;
-}
-
-const INTEREST_STATION = stationIndex("interests");
-const interestIds = interests.items.map((item) => item.id);
-
-function lerpFrames(a: Keyframe, b: Keyframe, t: number): Keyframe {
-  const mix = (x: number, y: number) => x + (y - x) * t;
-  const pair = (x?: [number, number], y?: [number, number]): [number, number] | undefined =>
-    x && y ? [mix(x[0], y[0]), mix(x[1], y[1])] : (x ?? y);
-  return {
-    target: [mix(a.target[0], b.target[0]), mix(a.target[1], b.target[1]), mix(a.target[2], b.target[2])],
-    yaw: mix(a.yaw, b.yaw),
-    pitch: mix(a.pitch, b.pitch),
-    dist: mix(a.dist, b.dist),
-    fov: mix(a.fov, b.fov),
-    fit: a.fit !== undefined && b.fit !== undefined ? mix(a.fit, b.fit) : (a.fit ?? b.fit),
-    shift: pair(a.shift, b.shift),
-    shiftPortrait: pair(a.shiftPortrait, b.shiftPortrait),
-  };
 }
 
 function solvePose(frame: Keyframe, aspect: number, out: Pose) {
@@ -56,7 +35,16 @@ function solvePose(frame: Keyframe, aspect: number, out: Pose) {
   out.shiftY = shift[1];
 }
 
-export function CameraRig({ introSeconds = 3.4 }: { introSeconds?: number }) {
+export function CameraRig({ introSeconds = 5.2 }: { introSeconds?: number }) {
+  const introHurry = useRef(false);
+  useEffect(() => {
+    const hurry = () => {
+      introHurry.current = true;
+    };
+    const events = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    events.forEach((name) => window.addEventListener(name, hurry, { passive: true }));
+    return () => events.forEach((name) => window.removeEventListener(name, hurry));
+  }, []);
   const camera = useThree((state) => state.camera) as PerspectiveCamera;
   const size = useThree((state) => state.size);
   const poses = useMemo<Pose[]>(
@@ -73,13 +61,26 @@ export function CameraRig({ introSeconds = 3.4 }: { introSeconds?: number }) {
   );
   const state = useRef({
     initialised: false,
-    interest: 0,
     parallaxX: 0,
     parallaxY: 0,
     introStart: -1,
+    introSkipped: false,
+    introProgress: 0,
   });
   const temp = useMemo(
     () => ({ position: new Vector3(), target: new Vector3(), right: new Vector3(), up: new Vector3() }),
+    [],
+  );
+  // The opening flight: from high outside the bowl, sweeping in over the crowd to the screen.
+  const intro = useMemo(
+    () => ({
+      from: new Vector3(...INTRO_FROM.position),
+      via: new Vector3(...INTRO_FROM.via),
+      lookFrom: new Vector3(...INTRO_FROM.target),
+      curve: new CatmullRomCurve3([new Vector3(), new Vector3(), new Vector3()], false, "centripetal"),
+      point: new Vector3(),
+      look: new Vector3(),
+    }),
     [],
   );
 
@@ -88,16 +89,10 @@ export function CameraRig({ introSeconds = 3.4 }: { introSeconds?: number }) {
     const s = state.current;
     const aspect = size.width / Math.max(1, size.height);
     const reduced = rig.reducedMotion;
-    const { interest, sceneReady } = ui.get();
-
-    const selected = Math.max(0, interestIds.indexOf(interest));
-    s.interest = reduced || rig.capture || !s.initialised ? selected : damp(s.interest, selected, 4, dt);
-    const low = Math.floor(s.interest);
-    const high = Math.min(interestIds.length - 1, low + 1);
-    const interestKeyframe = lerpFrames(interestFrame(low), interestFrame(high), s.interest - low);
+    const { sceneReady } = ui.get();
 
     keyframes.forEach((frame, index) => {
-      solvePose(index === INTEREST_STATION ? interestKeyframe : frame, aspect, poses[index]);
+      solvePose(frame, aspect, poses[index]);
     });
 
     const goal = rig.station;
@@ -123,21 +118,32 @@ export function CameraRig({ introSeconds = 3.4 }: { introSeconds?: number }) {
     const shiftX = a.shiftX + (b.shiftX - a.shiftX) * f;
     const shiftY = a.shiftY + (b.shiftY - a.shiftY) * f;
 
-    // Opening shot: the camera settles from high in the hall as the lights come up.
-    if (sceneReady && s.introStart < 0) s.introStart = frameState.clock.elapsedTime;
-    const skipIntro = reduced || rig.capture;
-    const intro = skipIntro
-      ? 1
-      : s.introStart < 0
-        ? 0
-        : clamp01((frameState.clock.elapsedTime - s.introStart) / introSeconds);
-    if (intro < 1) {
-      const k = 1 - easeOutCubic(intro);
-      temp.position.x -= 1.5 * k;
-      temp.position.y += 4.2 * k;
-      temp.position.z += 10 * k;
-      temp.target.y += 1.4 * k;
+    // Opening shot: the lights come on while the camera holds high above the ground,
+    // then it sweeps down over the crowd and into the giant screen.
+    if (sceneReady && s.introStart < 0) {
+      s.introStart = frameState.clock.elapsedTime;
+      // Arriving mid-page (a restored scroll position or a deep link) skips the opening flight.
+      s.introSkipped = window.scrollY > 40;
     }
+    const skipIntro = reduced || rig.capture || s.introSkipped;
+    if (!skipIntro && s.introStart >= 0 && frameState.clock.elapsedTime - s.introStart > 1.2) {
+      // Any scroll, key or tap during the flight fast-forwards it rather than cutting.
+      s.introProgress = Math.min(1, s.introProgress + (dt / introSeconds) * (introHurry.current ? 5 : 1));
+    }
+    const progress = skipIntro ? 1 : s.introProgress;
+    if (progress < 1) {
+      const k = easeInOut(progress);
+      intro.curve.points[0].copy(intro.from);
+      intro.curve.points[1].copy(intro.via);
+      intro.curve.points[2].copy(temp.position);
+      intro.curve.getPoint(easeOutCubic(k * 0.5 + progress * 0.5), intro.point);
+      intro.look.copy(intro.lookFrom).lerp(temp.target, easeInOut(clamp01(progress * 1.25)));
+      temp.position.copy(intro.point);
+      temp.target.copy(intro.look);
+    }
+    if (progress >= 1 && !ui.get().introDone) ui.set({ introDone: true });
+    // Never let the spidercam dip into the turf between stations.
+    temp.position.y = Math.max(temp.position.y, 0.45);
 
     // Subtle pointer parallax, only for fine pointers and full motion.
     const px = reduced || rig.capture ? 0 : rig.pointerX;
@@ -152,7 +158,7 @@ export function CameraRig({ introSeconds = 3.4 }: { introSeconds?: number }) {
     camera.lookAt(temp.target);
     camera.fov = fov;
     camera.near = 0.08;
-    camera.far = 150;
+    camera.far = 2400;
     const w = size.width;
     const h = size.height;
     camera.setViewOffset(w, h, -shiftX * w, shiftY * h, w, h);
