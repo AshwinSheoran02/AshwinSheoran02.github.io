@@ -27,7 +27,8 @@ export function Loader() {
     return () => window.clearTimeout(timer);
   }, [done]);
 
-  if (gone) return null;
+  // Without the 3D scene there is nothing to wait for, so the curtain never goes up.
+  if (gone || mode === "static") return null;
   return (
     <div className="loader" data-done={done} aria-hidden="true">
       <div className="loader__inner">
