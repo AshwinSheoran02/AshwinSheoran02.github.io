@@ -13,6 +13,7 @@ const siteBasePath = normalizeSiteBasePath(process.env.SITE_BASE_PATH);
 const GAMES = {
   "Harry Potter Board Game": "https://ashwin.top/harry-potter/",
   "3D Pool Game": "https://ashwin.top/pool-game/",
+  "Ridgeline FPS": "https://ashwin.top/ridgeline-game/",
 };
 
 /** Collects uncaught errors; the 3D scene is allowed to fall back, but nothing may throw. */
@@ -71,7 +72,7 @@ test.describe("content and navigation", () => {
   test("never claims the game paths or adds a catch-all", async () => {
     // The games are separate GitHub Pages projects under the same domain. The build
     // must not ship anything at their paths, nor a 404.html that would catch them.
-    for (const path of ["harry-potter", "pool-game", "404.html"]) {
+    for (const path of ["harry-potter", "pool-game", "ridgeline-game", "404.html"]) {
       expect(existsSync(resolve(process.cwd(), "dist", path))).toBe(false);
     }
   });

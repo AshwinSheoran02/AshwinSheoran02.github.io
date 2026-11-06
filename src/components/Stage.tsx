@@ -24,6 +24,7 @@ const STILLS = new Set([
   "known-issues",
   "project-harry-potter",
   "project-pool-game",
+  "project-ridgeline",
   "contact",
 ]);
 

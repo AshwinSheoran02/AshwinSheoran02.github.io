@@ -8,6 +8,38 @@ import { PoolTable } from "../exhibits/PoolTable";
 import { WizardingBoard } from "../exhibits/WizardingBoard";
 import { projectPosition } from "../layout";
 import { useMaterials } from "../materials";
+import { posterTexture } from "./posters";
+
+/** A big LED screen on a stand, showing the project's title screen. */
+function PosterScreen({ project }: { project: Project }) {
+  const m = useMaterials();
+  const resources = useMemo(() => {
+    const map = posterTexture(project);
+    return { map, material: new MeshBasicMaterial({ map, color: new Color(1.08, 1.08, 1.08) }) };
+  }, [project]);
+  useEffect(
+    () => () => {
+      resources.map.dispose();
+      resources.material.dispose();
+    },
+    [resources],
+  );
+  // Faces the field (north), where the camera arrives from.
+  return (
+    <group rotation-y={Math.PI}>
+      <mesh material={resources.material} position={[0, 1.85, 0.07]}>
+        <planeGeometry args={[3.6, 2.025]} />
+      </mesh>
+      <RoundedBox args={[3.8, 2.2, 0.12]} radius={0.03} position={[0, 1.85, 0]} material={m.lacquer} castShadow />
+      {[-1.2, 1.2].map((x) => (
+        <mesh key={x} material={m.steel} position={[x, 0.42, -0.05]} castShadow>
+          <boxGeometry args={[0.1, 0.84, 0.1]} />
+        </mesh>
+      ))}
+      <RoundedBox args={[3, 0.08, 0.7]} radius={0.02} position={[0, 0.04, -0.05]} material={m.lacquer} receiveShadow />
+    </group>
+  );
+}
 
 /** Generic stand for future projects: a lit totem carrying the title. */
 function Totem({ project }: { project: Project }) {
@@ -84,6 +116,8 @@ export function Exhibits() {
                   </>
                 ) : project.exhibit === "wizarding-board" ? (
                   <WizardingBoard x={p.x} z={p.z} />
+                ) : project.exhibit === "screen" ? (
+                  <PosterScreen project={project} />
                 ) : (
                   <Totem project={project} />
                 )}

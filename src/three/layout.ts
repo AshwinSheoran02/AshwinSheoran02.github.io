@@ -200,6 +200,18 @@ function projectFrame(index: number): Keyframe {
       shiftPortrait: [0, 0.27],
     };
   }
+  if (project?.exhibit === "screen") {
+    return {
+      target: [p.x, 1.55, p.z],
+      yaw: 168,
+      pitch: -4,
+      dist: 8.2,
+      fov: 34,
+      fit: 5.6,
+      shift: [0.2, 0.02],
+      shiftPortrait: [0, 0.27],
+    };
+  }
   return {
     target: [p.x, 1.5, p.z],
     yaw: 180,

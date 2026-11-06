@@ -78,6 +78,10 @@ describe("ashwin.top", () => {
       "href",
       "https://ashwin.top/pool-game/",
     );
+    expect(screen.getByRole("link", { name: /PLAY GAME.*Ridgeline/ })).toHaveAttribute(
+      "href",
+      "https://ashwin.top/ridgeline-game/",
+    );
   });
 
   it("keeps the CV and LinkedIn links", () => {

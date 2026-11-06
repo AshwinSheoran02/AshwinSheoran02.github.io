@@ -78,7 +78,7 @@ export interface Fact {
 export type ProjectKind = "game" | "app";
 
 /** Built-in 3D exhibits. Projects without one get the generic display case. */
-export type ExhibitStyle = "wizarding-board" | "pool-table" | "display-case";
+export type ExhibitStyle = "wizarding-board" | "pool-table" | "screen" | "display-case";
 
 export interface Project {
   readonly id: string;
@@ -503,6 +503,23 @@ export const projects = [
       "Mouse, keyboard and touch controls, three camera views and five cloth colours.",
     ],
     exhibit: "pool-table",
+  },
+  {
+    id: "ridgeline",
+    kind: "game",
+    title: "Ridgeline",
+    navLabel: "Ridgeline FPS",
+    medium: "Browser first-person shooter · built with three.js",
+    url: "https://ashwin.top/ridgeline-game/",
+    summary:
+      "A first-person shooter set in Tirthkot, a Himalayan hill town stacked above the river ghats. Team deathmatch against bots, or online with friends.",
+    details: [
+      "Online play, peer to peer: share a room code, up to 8 players, bots fill the empty slots.",
+      "VK-30 rifle, M12 Breacher shotgun and cookable frag grenades.",
+      "Bots that use cover, flank, throw grenades and call out on the radio.",
+      "Keyboard and mouse, touch controls or a gamepad.",
+    ],
+    exhibit: "screen",
   },
 ] as const satisfies readonly Project[];
 
